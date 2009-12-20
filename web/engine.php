@@ -60,7 +60,7 @@ function chvar_fetch(){
 
 function chvar_dump(){
 	global $db;
-	$res=$db->query('SELECT * FROM `data` ORDER BY `ctime`');
+	$res=$db->query('SELECT * FROM `data` ORDER BY `master`,`slave`');
 	while($r=$res->fetch_assoc()){
 		echo $r['master']."\t".$r['slave']."\n";
 	}
