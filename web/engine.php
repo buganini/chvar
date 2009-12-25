@@ -89,7 +89,7 @@ function chvar_info(){
 		if($i){
 			echo '</td></tr><tr><td>';
 		}
-		for($j=0;$j<count($r);++$j){
+		for($j=0;$j<count($r[$i]);++$j){
 			if($j){
 				echo '</td><td>';
 			}
