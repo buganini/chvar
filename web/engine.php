@@ -66,7 +66,7 @@ function chvar_info(){
 		array('UAO2.5')
 	);
 	$a=explode("\n",trim($_POST['text']));
-	for($i=0,$j=1;$i<count($a);++$i,++$j){
+	for($i=0,$j=1;$i<count($a);++$i){
 		$a[$i]=hexval($a[$i]);
 		if($i==0 && empty($a[$i])){
 			bsdconv_destroy($toent);
@@ -81,6 +81,7 @@ function chvar_info(){
  			$r[2][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
  			$r[3][$j]=pad(strtoupper(bin2hex(bsdconv($tobig5,f($a[$i])))));
  			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($touao,f($a[$i])))));
+			++$j;
 		}
 	}
 	echo '<table><tr><td>';
