@@ -43,6 +43,48 @@ function f($s){
 	return '01'.$s;
 }
 
+function pad($s){
+	if($s){
+		return $s;
+	}
+	return '&nbsp;';
+}
+
+function chvar_info(){
+	$toent=bsdconv_create('bsdconv:utf-8,ascii');
+	$tobig5=bsdconv_create('bsdconv:big5,ascii');
+	$r=array();
+	$a=explode("\n",trim($_POST['text']));
+	for($i=0;$i<count($a);++$i){
+		$a[$i]=hexval($a[$i]);
+		if($i==0 && empty($a[$i])){
+			bsdconv_destroy($toent);
+			bsdconv_destroy($tobig5);
+			die('Empty main glyph.');
+		}
+		if($a[$i]){
+ 			$r[0][$i]=bsdconv($toent,f($a[$i]));
+ 			$r[1][$i]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
+ 			$r[2][$i]=pad(strtoupper(bin2hex(bsdconv($tobig5,f($a[$i])))));
+		}
+	}
+	echo '<table><tr><td>';
+	for($i=0;$i<count($r);++$i){
+		if($i){
+			echo '</td></tr><tr><td>';
+		}
+		for($j=0;$j<count($r);++$j){
+			if($j){
+				echo '</td><td>';
+			}
+			echo $r[$i][$j];
+		}
+	}
+	echo '</td></tr></table>';
+	bsdconv_destroy($toent);
+	bsdconv_destroy($tobig5);
+}
+
 function chvar_fetch(){
 	global $db;
 	$sql=$db->prepare('SELECT `master`,`slave`,`ctime` FROM `data` WHERE `ctime` > ? ORDER BY `ctime` ASC LIMIT 25');

@@ -5,6 +5,10 @@
 .hl{
 	border: solid 1px #f00;
 }
+#glyph td{
+	border: solid 1px #777;
+	text-align: center;
+}
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
@@ -23,20 +27,11 @@ function mkimg(s,hl,t){
 	}
 }
 
-function dispGlyph(){
-	var s=$('#text').val();
-	var a=s.split('\n');
-	var img='';
-	var x=new Array();
-	for(var i=0;i<a.length;++i){
-		x[i]=a[i].replace(/[^0-9a-f]/ig,'');
-		hl=0;
-		if(i && x[i]==x[0]){
-			hl=1;
-		}
-		img+=mkimg(x[i],hl);
-	}
-	$('#glyph').html(img);
+function getinfo(){
+        $.post('engine.php',{
+                action: 'info',
+                text: $('#text').val(),
+        },function(t){$('#glyph').html(t);},"html");
 }
 
 function update(dat){
@@ -74,7 +69,7 @@ function add(){
 </head>
 <body>
 <form>
-<textarea id="text" onKeyup="dispGlyph()"></textarea>
+<textarea id="text" onKeyup="getinfo()"></textarea>
 <input type="button" value="Submit" onClick="add()" />
 <div id="glyph"></div>
 </form>
