@@ -52,20 +52,35 @@ function pad($s){
 
 function chvar_info(){
 	$toent=bsdconv_create('bsdconv:utf-8,ascii');
-	$tobig5=bsdconv_create('bsdconv:big5,ascii');
-	$r=array();
+	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
+	$tobig5=bsdconv_create('bsdconv:bg5-2003,ascii');
+	$touao=bsdconv_create('bsdconv:uao25,ascii');
+	if(!$toent || !$tobig5 || !$touao || !$tocp950){
+		die('Failed');
+	}
+	$r=array(
+		array('Entity'),
+		array('Glyph'),
+		array('CP950'),
+		array('Big5-2k3'),
+		array('UAO2.5')
+	);
 	$a=explode("\n",trim($_POST['text']));
-	for($i=0;$i<count($a);++$i){
+	for($i=0,$j=1;$i<count($a);++$i,++$j){
 		$a[$i]=hexval($a[$i]);
 		if($i==0 && empty($a[$i])){
 			bsdconv_destroy($toent);
 			bsdconv_destroy($tobig5);
+			bsdconv_destroy($tocp950);
+			bsdconv_destroy($touao);
 			die('Empty main glyph.');
 		}
 		if($a[$i]){
- 			$r[0][$i]=bsdconv($toent,f($a[$i]));
- 			$r[1][$i]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
- 			$r[2][$i]=pad(strtoupper(bin2hex(bsdconv($tobig5,f($a[$i])))));
+ 			$r[0][$j]=bsdconv($toent,f($a[$i]));
+ 			$r[1][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
+ 			$r[2][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
+ 			$r[3][$j]=pad(strtoupper(bin2hex(bsdconv($tobig5,f($a[$i])))));
+ 			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($touao,f($a[$i])))));
 		}
 	}
 	echo '<table><tr><td>';
@@ -82,7 +97,9 @@ function chvar_info(){
 	}
 	echo '</td></tr></table>';
 	bsdconv_destroy($toent);
+	bsdconv_destroy($tocp950);
 	bsdconv_destroy($tobig5);
+	bsdconv_destroy($touao);
 }
 
 function chvar_fetch(){
