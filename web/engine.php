@@ -77,7 +77,7 @@ function chvar_info(){
 			die('Empty main glyph.');
 		}
 		if($a[$i]){
-			$r[0][$j]=$a[$i];
+			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
  			$r[1][$j]=bsdconv($toent,f($a[$i]));
  			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
  			$r[3][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
