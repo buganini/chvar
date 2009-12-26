@@ -1,4 +1,5 @@
 <?php
+ignore_user_abort(true);
 $func='chvar_'.$_REQUEST['action'];
 if(function_exists($func)){
 	$db=new mysqli('localhost','chvar','idiot','chvar');
