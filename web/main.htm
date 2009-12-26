@@ -32,10 +32,13 @@ function mkimg(s,hl,t){
 }
 
 function getinfo(){
-        $.post('engine.php',{
-                action: 'info',
-                text: $('#text').val(),
-        },function(t){$('#glyph').html(t);},"html");
+	if(lc!=$('#text').val()){
+		lc=$('#text').val();
+		$.post('engine.php',{
+			action: 'info',
+			text: $('#text').val()
+		},function(t){$('#glyph').html(t);},"html");
+	}
 }
 
 function update(dat){
@@ -81,6 +84,7 @@ function add(){
 <table id="data">
 </table>
 <script type="text/javascript">
+	lc='';
 	last=0;
 	$.ajax({
 		url: 'engine.php?action=fetch&last=0',
