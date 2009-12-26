@@ -53,17 +53,17 @@ function pad($s){
 function chvar_info(){
 	$toent=bsdconv_create('bsdconv:utf-8,ascii');
 	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
-	$tobig5=bsdconv_create('bsdconv:bg5-2003,ascii');
+	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
 	$touao=bsdconv_create('bsdconv:uao25,ascii');
-	if(!$toent || !$tobig5 || !$touao || !$tocp950){
+	if(!$toent || !$tochewing || !$touao || !$tocp950){
 		die('Failed');
 	}
 	$r=array(
 		array('Unicode'),
 		array('Entity'),
 		array('Glyph'),
+		array('Chewing'),
 		array('CP950'),
-		array('Big5-2k3'),
 		array('UAO2.5')
 	);
 	$a=explode("\n",trim($_POST['text']));
@@ -71,7 +71,7 @@ function chvar_info(){
 		$a[$i]=hexval($a[$i]);
 		if($i==0 && empty($a[$i])){
 			bsdconv_destroy($toent);
-			bsdconv_destroy($tobig5);
+			bsdconv_destroy($tochewing);
 			bsdconv_destroy($tocp950);
 			bsdconv_destroy($touao);
 			die('Empty main glyph.');
@@ -80,8 +80,8 @@ function chvar_info(){
 			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
  			$r[1][$j]=bsdconv($toent,f($a[$i]));
  			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
- 			$r[3][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
- 			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tobig5,f($a[$i])))));
+ 			$r[3][$j]=bsdconv($tochewing,f($a[$i]));
+ 			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
  			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($touao,f($a[$i])))));
 			++$j;
 		}
@@ -101,7 +101,7 @@ function chvar_info(){
 	echo '</td></tr></table>';
 	bsdconv_destroy($toent);
 	bsdconv_destroy($tocp950);
-	bsdconv_destroy($tobig5);
+	bsdconv_destroy($tochewing);
 	bsdconv_destroy($touao);
 }
 
