@@ -1,5 +1,10 @@
 <?php
 ignore_user_abort(true);
+set_time_limit(0);
+
+if(isset($argv[1])){
+	$_REQUEST['action']=$argv[1];
+}
 $func='chvar_'.$_REQUEST['action'];
 if(function_exists($func)){
 	$db=new mysqli('localhost','chvar','idiot','chvar');
@@ -126,6 +131,35 @@ function chvar_dump(){
 	$res=$db->query('SELECT * FROM `data` ORDER BY `master`,`slave`');
 	while($r=$res->fetch_assoc()){
 		echo $r['master']."\t".$r['slave']."\n";
+	}
+}
+
+function chvar_oomap(){
+	global $db;
+	$m=array();
+	$res=$db->query('SELECT * FROM `data` ORDER BY `master`,`slave`');
+	while($r=$res->fetch_assoc()){
+		$m[$r['slave']][]=$r['master'];
+	}
+	foreach($m as $k=>$v){
+		foreach($v as &$s){
+			$last='';
+			$c=0;
+			while($last!=$s){
+				++$c;
+				if($c>10){
+					die($s);
+				}
+				$last=$s;
+				if(count($m[$s])==1){
+					$s=$m[$s][0];
+				}
+			}
+			unset($s);
+		}
+		if(count($v)==1){
+			echo f($k)."\t".f($v[0])."\n";
+		}
 	}
 }
 ?>
