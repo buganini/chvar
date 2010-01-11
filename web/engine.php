@@ -26,11 +26,22 @@ function mctime(){
 
 function chvar_add(){
 	global $db;
-	$a=explode("\n",trim($_POST['text']));
-	$a[0]=hexval($a[0]);
+	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	$a=preg_split('/\s+/',trim($_POST['text']));
+	$tmp=hexval($a[0]);
+	if($tmp==''){
+		$tmp=explode(',',bsdconv($tounicode,$a[0]));
+		$tmp=substr($tmp[0],2);
+	}
+	$a[0]=$tmp;
 	if($a[0]){
 		for($i=1;$i<count($a);++$i){
-			$a[$i]=hexval($a[$i]);
+			$tmp=hexval($a[$i]);
+			if($tmp==''){
+				$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+				$tmp=substr($tmp[0],2);
+			}
+			$a[$i]=$tmp;
 			if($a[$i]){
 				$sql=$db->prepare('INSERT INTO `data` (`master`,`slave`,`ctime`) SELECT ?,?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `data` WHERE `master`=? AND `slave`=? LIMIT 1)');
 				$sql->bind_param('ssdss',$a[0],$a[$i],mctime(),$a[0],$a[$i]);
