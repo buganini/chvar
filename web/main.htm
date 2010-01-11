@@ -16,6 +16,18 @@
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
+function doKeyDown(ev){
+	if(navigator.userAgent.match("Gecko")){
+		kc=ev.which;
+	}else{
+		kc=ev.keyCode;
+	}
+	if (ev.ctrlKey && kc == 13){
+		add();
+		return false;
+	}
+} 
+
 function mkimg(s,hl,t){
 	s=s.replace(/^[ 0]*/g,'').replace(/ *$/g,'');
 	if(t){
@@ -74,7 +86,7 @@ function add(){
 }
 </script>
 </head>
-<body>
+<body onkeydown="doKeyDown(event)">
 <form>
 <textarea id="text" onKeyup="getinfo()"></textarea>
 <input type="button" value="Submit" onClick="add()" />
