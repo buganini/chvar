@@ -61,7 +61,8 @@ function chvar_info(){
 	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
 	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
 	$touao=bsdconv_create('bsdconv:uao25,ascii');
-	if(!$toent || !$tochewing || !$touao || !$tocp950){
+	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	if(!$toent || !$tochewing || !$touao || !$tocp950 || !$tounicode){
 		die('Failed');
 	}
 	$r=array(
@@ -72,14 +73,20 @@ function chvar_info(){
 		array('CP950'),
 		array('UAO2.5')
 	);
-	$a=explode("\n",trim($_POST['text']));
+	$a=preg_split('/\s+/',trim($_POST['text']));
 	for($i=0,$j=1;$i<count($a);++$i){
-		$a[$i]=hexval($a[$i]);
+		$tmp=hexval($a[$i]);
+		if($tmp==''){
+			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=substr($tmp[0],2);
+		}
+		$a[$i]=$tmp;
 		if($i==0 && empty($a[$i])){
 			bsdconv_destroy($toent);
 			bsdconv_destroy($tochewing);
 			bsdconv_destroy($tocp950);
 			bsdconv_destroy($touao);
+			bsdconv_destroy($tounicode);
 			die('Empty main glyph.');
 		}
 		if($a[$i]){
@@ -109,6 +116,7 @@ function chvar_info(){
 	bsdconv_destroy($tocp950);
 	bsdconv_destroy($tochewing);
 	bsdconv_destroy($touao);
+	bsdconv_destroy($tounicode);
 }
 
 function chvar_fetch(){

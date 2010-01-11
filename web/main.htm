@@ -36,7 +36,7 @@ function getinfo(){
 		lc=$('#text').val();
 		$.post('engine.php',{
 			action: 'info',
-			text: $('#text').val()
+			text: lc
 		},function(t){$('#glyph').html(t);},"html");
 	}
 }
