@@ -49,8 +49,38 @@ function chvar_add(){
 			}
 		}
 	}
+	bsdconv_destroy($tounicode);
 	chvar_fetch();
 }
+
+function chvar_addgrp(){
+	global $db;
+	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	$a=preg_split('/\s+/',trim($_POST['text']));
+	$tmp=hexval($a[0]);
+	if($tmp==''){
+		$tmp=explode(',',bsdconv($tounicode,$a[0]));
+		$tmp=substr($tmp[0],2);
+	}
+	$a[0]=$tmp;
+	if($a[0]){
+		for($i=1;$i<count($a);++$i){
+			$tmp=hexval($a[$i]);
+			if($tmp==''){
+				$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+				$tmp=substr($tmp[0],2);
+			}
+			$a[$i]=$tmp;
+			if($a[$i]){
+				$sql=$db->prepare('INSERT INTO `map` (`master`,`slave`,`ctime`) ');
+				$sql->bind_param('ssdss',$a[0],$a[$i],mctime(),$a[0],$a[$i]);
+				$sql->execute();
+			}
+		}
+	}
+	bsdconv_destroy($tounicode);
+}
+
 
 function f($s){
 	$s=hexval($s);
@@ -84,7 +114,9 @@ function chvar_info(){
 		array('CP950'),
 		array('UAO2.5')
 	);
-	$a=preg_split('/\s+/',trim($_POST['text']));
+	$s=$_REQUEST['text'];
+	$s=str_replace('"','',$s);
+	$a=preg_split('/\s+/',trim($s));
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
@@ -137,11 +169,11 @@ function chvar_fetch(){
 	$sql->execute();
 	$sql->bind_result($m,$s,$c);
 	$data=array();
-	$cv=bsdconv_create('bsdconv:utf-8,ascii');
-	while($sql->fetch()){
-		$data[]=array($m,$s,$c,bsdconv($cv,f($m)),bsdconv($cv,f($s)));
-	}
-	bsdconv_destroy($cv);
+#	$cv=bsdconv_create('bsdconv:utf-8,ascii');
+#	while($sql->fetch()){
+#		$data[]=array($m,$s,$c,bsdconv($cv,f($m)),bsdconv($cv,f($s)));
+#	}
+#	bsdconv_destroy($cv);
 	echo json_encode($data);
 }
 

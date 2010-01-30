@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 5.1.41, for portbld-freebsd8.0 (i386)
+-- MySQL dump 10.13  Distrib 5.1.42, for portbld-freebsd8.0 (i386)
 --
 -- Host: localhost    Database: chvar
 -- ------------------------------------------------------
@@ -40,6 +40,19 @@ CREATE TABLE `data` (
   `ctime` double DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `group`
+--
+
+DROP TABLE IF EXISTS `group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `group` (
+  `id` int(11) DEFAULT NULL,
+  `data` varchar(255) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -50,6 +63,6 @@ CREATE TABLE `data` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2009-12-21  4:03:51
+-- Dump completed on 2010-01-30  8:33:14
 
 INSERT INTO `axiom` values (1);
