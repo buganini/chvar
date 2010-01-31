@@ -59,23 +59,23 @@ function update(dat){
 function addgrp(){
 	$.post('engine.php',{
 		action: 'addgrp',
+		id: nid,
 		text: $('#text').val(),
 	},update,"json");
 }
 </script>
 </head>
 <body onkeydown="doKeyDown(event)">
-<form>
 <textarea id="text" onKeyup="getinfo()"></textarea>
-<input type="button" value="Submit" onClick="add()" />
+<input type="button" value="Submit" onClick="addgrp()" />
 <div id="glyph"></div>
-</form>
 <hr />
 <div id="info" style="position:fixed; right:0;"></div>
 <div id="related">
 </div>
 <script type="text/javascript">
 	lc='';
+	nid=0;
 </script>
 </body>
 </html>

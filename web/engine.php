@@ -46,8 +46,8 @@ function chvar_addgrp(){
 		$a[$i]=$tmp;
 		if($a[$i] && !isset($done[$a[$i]])){
 			$done[$a[$i]]=0;
-			$sql=$db->prepare('INSERT INTO `group` (`id`,`data`) VALUES (?,?) ');
-			$sql->bind_param('is',$nid,$a[$i]);
+			$sql=$db->prepare('INSERT INTO `group` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group` WHERE `id`=? AND `data`=? LIMIT 1)');
+			$sql->bind_param('isis',$nid,$a[$i],$nid,$a[$i]);
 			$sql->execute();
 		}
 	}
@@ -73,7 +73,8 @@ function pad($s){
 function chvar_related(){
 	global $db;
 	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
-	if(!$tounicode){
+	$toutf8=bsdconv_create('bsdconv:utf-8,ascii');
+	if(!$tounicode || !$toutf8){
 		die('Failed');
 	}
 	$s=$_REQUEST['text'];
@@ -92,15 +93,22 @@ function chvar_related(){
 			$rel[$r['id']]=1;
 		}
 	}
-	echo '<input type="radio" name="id" value="0" checked="checked" /> New ID<br />';
+	echo '<input type="radio" name="id" value="0" checked="checked" onClick="nid=0" /> <New ID><br />';
+	$a=array();
 	foreach($rel as $k=>$v){
-		echo '<input type="radio" name="id" value="'.$k.'" />';
+		$a[]=$k;
+	}
+	sort($a);
+	foreach($a as $k){
+		echo '<input type="radio" name="id" onClick="nid='.$k.'" /> <'.$k.'>';
 		$res=$db->query('SELECT * FROM `group` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
-			echo '<a onmouseover="showinfo(this.innerHTML)">'.$r['data'].'</a> ';
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">['.bsdconv($toutf8,f($r['data'])).']</a>';
 		}
 		echo '<br />';
 	}
+	bsdconv_destroy($tounicode);
+	bsdconv_destroy($toutf8);
 }
 
 function chvar_info(){
