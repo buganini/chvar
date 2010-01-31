@@ -64,5 +64,3 @@ CREATE TABLE `group` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2010-01-30  8:33:14
-
-INSERT INTO `axiom` values (1);

@@ -10,7 +10,10 @@ if(function_exists($func)){
 	$db=new mysqli('localhost','chvar','idiot','chvar');
 	$db->autocommit(true);
 	$db->query('SET NAMES UTF8');
+	$db->query('LOCK TABLES');
 	$func();
+	$db->query('UNLOCK TABLES');
+	$db->close();
 }
 
 function hexval($s){
@@ -19,63 +22,33 @@ function hexval($s){
 	return strtoupper($s);
 }
 
-function mctime(){
-	$t=explode(' ',microtime());
-	return $t[0]+$t[1];
-}
-
-function chvar_add(){
-	global $db;
-	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
-	$a=preg_split('/\s+/',trim($_POST['text']));
-	$tmp=hexval($a[0]);
-	if($tmp==''){
-		$tmp=explode(',',bsdconv($tounicode,$a[0]));
-		$tmp=substr($tmp[0],2);
-	}
-	$a[0]=$tmp;
-	if($a[0]){
-		for($i=1;$i<count($a);++$i){
-			$tmp=hexval($a[$i]);
-			if($tmp==''){
-				$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-				$tmp=substr($tmp[0],2);
-			}
-			$a[$i]=$tmp;
-			if($a[$i]){
-				$sql=$db->prepare('INSERT INTO `data` (`master`,`slave`,`ctime`) SELECT ?,?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `data` WHERE `master`=? AND `slave`=? LIMIT 1)');
-				$sql->bind_param('ssdss',$a[0],$a[$i],mctime(),$a[0],$a[$i]);
-				$sql->execute();
-			}
-		}
-	}
-	bsdconv_destroy($tounicode);
-	chvar_fetch();
-}
 
 function chvar_addgrp(){
 	global $db;
 	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
 	$a=preg_split('/\s+/',trim($_POST['text']));
-	$tmp=hexval($a[0]);
-	if($tmp==''){
-		$tmp=explode(',',bsdconv($tounicode,$a[0]));
-		$tmp=substr($tmp[0],2);
+	$nid=intval($_POST['id']);
+	if(!$nid){
+		$res=$db->query('SELECT `id` FROM `group` ORDER BY `id` DESC LIMIT 1');
+		if($r=$res->fetch_assoc()){
+			$nid=$r['id']+1;
+		}else{
+			$nid=1;
+		}
 	}
-	$a[0]=$tmp;
-	if($a[0]){
-		for($i=1;$i<count($a);++$i){
-			$tmp=hexval($a[$i]);
-			if($tmp==''){
-				$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-				$tmp=substr($tmp[0],2);
-			}
-			$a[$i]=$tmp;
-			if($a[$i]){
-				$sql=$db->prepare('INSERT INTO `map` (`master`,`slave`,`ctime`) ');
-				$sql->bind_param('ssdss',$a[0],$a[$i],mctime(),$a[0],$a[$i]);
-				$sql->execute();
-			}
+	$done=array();
+	for($i=0;$i<count($a);++$i){
+		$tmp=hexval($a[$i]);
+		if($tmp==''){
+			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=substr($tmp[0],2);
+		}
+		$a[$i]=$tmp;
+		if($a[$i] && !isset($done[$a[$i]])){
+			$done[$a[$i]]=0;
+			$sql=$db->prepare('INSERT INTO `group` (`id`,`data`) VALUES (?,?) ');
+			$sql->bind_param('is',$nid,$a[$i]);
+			$sql->execute();
 		}
 	}
 	bsdconv_destroy($tounicode);
@@ -95,6 +68,39 @@ function pad($s){
 		return $s;
 	}
 	return '&nbsp;';
+}
+
+function chvar_related(){
+	global $db;
+	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	if(!$tounicode){
+		die('Failed');
+	}
+	$s=$_REQUEST['text'];
+	$s=str_replace('"','',$s);
+	$a=preg_split('/\s+/',trim($s));
+	$rel=array();
+	for($i=0,$j=1;$i<count($a);++$i){
+		$tmp=hexval($a[$i]);
+		if($tmp==''){
+			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=substr($tmp[0],2);
+		}
+		$a[$i]=$tmp;
+		$res=$db->query('SELECT * FROM `group` WHERE `data`="'.$a[$i].'"');
+		while($r=$res->fetch_assoc()){
+			$rel[$r['id']]=1;
+		}
+	}
+	echo '<input type="radio" name="id" value="0" checked="checked" /> New ID<br />';
+	foreach($rel as $k=>$v){
+		echo '<input type="radio" name="id" value="'.$k.'" />';
+		$res=$db->query('SELECT * FROM `group` WHERE `id`="'.$k.'"');
+		while($r=$res->fetch_assoc()){
+			echo '<a onmouseover="showinfo(this.innerHTML)">'.$r['data'].'</a> ';
+		}
+		echo '<br />';
+	}
 }
 
 function chvar_info(){
@@ -179,9 +185,9 @@ function chvar_fetch(){
 
 function chvar_dump(){
 	global $db;
-	$res=$db->query('SELECT * FROM `data` ORDER BY `master`,`slave`');
+	$res=$db->query('SELECT * FROM `group` ORDER BY `id`,`data`');
 	while($r=$res->fetch_assoc()){
-		echo $r['master']."\t".$r['slave']."\n";
+		echo $r['id']."\t".$r['data']."\n";
 	}
 }
 
