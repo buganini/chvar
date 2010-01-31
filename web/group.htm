@@ -1,0 +1,81 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style type="text/css">
+.hl{
+	border: solid 1px #f00;
+}
+.red{
+	color:#f00;
+}
+td{
+	border: solid 1px #777;
+	text-align: center;
+	width: 4em;
+}
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript">
+function doKeyDown(ev){
+	if(navigator.userAgent.match("Gecko")){
+		kc=ev.which;
+	}else{
+		kc=ev.keyCode;
+	}
+	if (ev.ctrlKey && kc == 13){
+		add();
+		return false;
+	}
+} 
+
+function getinfo(){
+	if(lc!=$('#text').val()){
+		lc=$('#text').val();
+		html=$.post('engine.php',{
+			action: 'info',
+			text: lc
+		},function(t){$('#glyph').html(t);},"html");
+		html=$.post('engine.php',{
+			action: 'related',
+			text: lc
+		},function(t){$('#related').html(t);},"html");
+	}
+}
+
+function showinfo(s){
+	html=$.post('engine.php',{
+		action: 'info',
+		text: s
+	},function(t){$('#info').html(t);},"html");
+}
+
+function update(dat){
+	dat=eval(dat);
+	if(dat.length==0){
+		return;
+	}
+}
+
+function addgrp(){
+	$.post('engine.php',{
+		action: 'addgrp',
+		text: $('#text').val(),
+	},update,"json");
+}
+</script>
+</head>
+<body onkeydown="doKeyDown(event)">
+<form>
+<textarea id="text" onKeyup="getinfo()"></textarea>
+<input type="button" value="Submit" onClick="add()" />
+<div id="glyph"></div>
+</form>
+<hr />
+<div id="info" style="position:fixed; right:0;"></div>
+<div id="related">
+</div>
+<script type="text/javascript">
+	lc='';
+</script>
+</body>
+</html>
