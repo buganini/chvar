@@ -115,9 +115,10 @@ function chvar_info(){
 	$toent=bsdconv_create('bsdconv:utf-8,ascii');
 	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
 	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
-	$togbk=bsdconv_create('bsdconv:gbk,ascii');
+	$tocp936=bsdconv_create('bsdconv:cp936,ascii');
+	$togb2312=bsdconv_create('bsdconv:gb2312,ascii');
 	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
-	if(!$toent || !$tochewing || !$togbk || !$tocp950 || !$tounicode){
+	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312){
 		die('Failed');
 	}
 	$r=array(
@@ -126,7 +127,8 @@ function chvar_info(){
 		array('Glyph'),
 		array('Chewing'),
 		array('CP950'),
-		array('GBK')
+		array('CP936'),
+		array('GB2312')
 	);
 	$s=$_REQUEST['text'];
 	$s=str_replace('"','',$s);
@@ -142,17 +144,19 @@ function chvar_info(){
 			bsdconv_destroy($toent);
 			bsdconv_destroy($tochewing);
 			bsdconv_destroy($tocp950);
-			bsdconv_destroy($togbk);
+			bsdconv_destroy($tocp936);
+			bsdconv_destroy($togb2312);
 			bsdconv_destroy($tounicode);
 			die('Empty main glyph.');
 		}
 		if($a[$i]){
 			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
  			$r[1][$j]=bsdconv($toent,f($a[$i]));
- 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
+ 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($a[$i],'0').'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
  			$r[3][$j]=bsdconv($tochewing,f($a[$i]));
  			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
- 			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($togbk,f($a[$i])))));
+ 			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($tocp936,f($a[$i])))));
+ 			$r[6][$j]=pad(strtoupper(bin2hex(bsdconv($togb2312,f($a[$i])))));
 			++$j;
 		}
 	}
@@ -172,7 +176,8 @@ function chvar_info(){
 	bsdconv_destroy($toent);
 	bsdconv_destroy($tocp950);
 	bsdconv_destroy($tochewing);
-	bsdconv_destroy($togbk);
+	bsdconv_destroy($tocp936);
+	bsdconv_destroy($togb2312);
 	bsdconv_destroy($tounicode);
 }
 
