@@ -187,12 +187,8 @@ function chvar_info(){
 function chvar_dump(){
 	global $db;
 	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
-	$ret=array();
 	while($r=$res->fetch_assoc()){
-		$ret[$r['id']][]=$r['data'];
-	}
-	foreach($ret as $k=>$v){
-		echo implode(' ',$v);
+		echo $r['id']."\t".$r['data'];
 		echo "\n";
 	}
 }
