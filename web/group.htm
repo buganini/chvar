@@ -13,6 +13,9 @@ td{
 	text-align: center;
 	width: 4em;
 }
+img,a{
+	vertical-align:middle;
+}
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
@@ -23,7 +26,7 @@ function doKeyDown(ev){
 		kc=ev.keyCode;
 	}
 	if (ev.ctrlKey && kc == 13){
-		add();
+		addgrp();
 		return false;
 	}
 } 
@@ -35,15 +38,21 @@ function getinfo(){
 			action: 'info',
 			text: lc
 		},function(t){$('#glyph').html(t);},"html");
+	}
+	showrelated();
+}
+
+function showrelated(){
 		html=$.post('engine.php',{
 			action: 'related',
+			level: $('#level').val(),
 			text: lc
-		},function(t){$('#related').html(t);},"html");
-	}
+		},function(t){$('#related').html(t); nid=0;},"html");
 }
 
 function showinfo(s){
 	html=$.post('engine.php',{
+		level: $('#level').val(),
 		action: 'info',
 		text: s
 	},function(t){$('#info').html(t);},"html");
@@ -60,12 +69,19 @@ function addgrp(){
 	$.post('engine.php',{
 		action: 'addgrp',
 		id: nid,
+		level: $('#level').val(),
 		text: $('#text').val(),
 	},update,"json");
+	showrelated();
 }
 </script>
 </head>
 <body onkeydown="doKeyDown(event)">
+<select id="level">
+<option value="1">Equivalent</option>
+<option value="2">Borrow</option>
+<option value="3">Mistake</option>
+</select><br />
 <textarea id="text" onKeyup="getinfo()"></textarea>
 <input type="button" value="Submit" onClick="addgrp()" />
 <div id="glyph"></div>

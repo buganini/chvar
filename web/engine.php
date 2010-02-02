@@ -26,10 +26,11 @@ function hexval($s){
 function chvar_addgrp(){
 	global $db;
 	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
-	$a=preg_split('/\s+/',trim($_POST['text']));
+	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
 	$nid=intval($_POST['id']);
+	$lv=intval($_POST['level']);
 	if(!$nid){
-		$res=$db->query('SELECT `id` FROM `group` ORDER BY `id` DESC LIMIT 1');
+		$res=$db->query('SELECT `id` FROM `group'.$lv.'` ORDER BY `id` DESC LIMIT 1');
 		if($r=$res->fetch_assoc()){
 			$nid=$r['id']+1;
 		}else{
@@ -46,7 +47,7 @@ function chvar_addgrp(){
 		$a[$i]=$tmp;
 		if($a[$i] && !isset($done[$a[$i]])){
 			$done[$a[$i]]=0;
-			$sql=$db->prepare('INSERT INTO `group` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group` WHERE `id`=? AND `data`=? LIMIT 1)');
+			$sql=$db->prepare('INSERT INTO `group'.$lv.'` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group'.$lv.'` WHERE `id`=? AND `data`=? LIMIT 1)');
 			$sql->bind_param('isis',$nid,$a[$i],$nid,$a[$i]);
 			$sql->execute();
 		}
@@ -77,6 +78,7 @@ function chvar_related(){
 	if(!$tounicode || !$toutf8){
 		die('Failed');
 	}
+	$lv=$_REQUEST['level'];
 	$s=$_REQUEST['text'];
 	$s=str_replace('"','',$s);
 	$a=preg_split('/\s+/',trim($s));
@@ -88,12 +90,17 @@ function chvar_related(){
 			$tmp=substr($tmp[0],2);
 		}
 		$a[$i]=$tmp;
-		$res=$db->query('SELECT * FROM `group` WHERE `data`="'.$a[$i].'"');
+		$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'"');
 		while($r=$res->fetch_assoc()){
 			$rel[$r['id']]=1;
 		}
 	}
-	echo '<input type="radio" name="id" value="0" checked="checked" onClick="nid=0" /> <New ID><br />';
+#	for($l){
+#		$nrel=array();
+#
+#		$rel=$nrel;
+#	}
+	echo '<input type="radio" name="id" value="0" checked="checked" onClick="nid=0" /> &lt;New ID&gt;<br />';
 	$a=array();
 	foreach($rel as $k=>$v){
 		$a[]=$k;
@@ -101,9 +108,9 @@ function chvar_related(){
 	sort($a);
 	foreach($a as $k){
 		echo '<input type="radio" name="id" onClick="nid='.$k.'" /> <'.$k.'>';
-		$res=$db->query('SELECT * FROM `group` WHERE `id`="'.$k.'"');
+		$res=$db->query('SELECT * FROM `group'.$lv.'` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
-			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">['.bsdconv($toutf8,f($r['data'])).']</a>';
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toutf8,f($r['data'])).'" />]</a>';
 		}
 		echo '<br />';
 	}
@@ -130,6 +137,7 @@ function chvar_info(){
 		array('CP936'),
 		array('GB2312')
 	);
+	$done=array();
 	$s=$_REQUEST['text'];
 	$s=str_replace('"','',$s);
 	$a=preg_split('/\s+/',trim($s));
@@ -140,19 +148,14 @@ function chvar_info(){
 			$tmp=substr($tmp[0],2);
 		}
 		$a[$i]=$tmp;
-		if($i==0 && empty($a[$i])){
-			bsdconv_destroy($toent);
-			bsdconv_destroy($tochewing);
-			bsdconv_destroy($tocp950);
-			bsdconv_destroy($tocp936);
-			bsdconv_destroy($togb2312);
-			bsdconv_destroy($tounicode);
-			die('Empty main glyph.');
-		}
 		if($a[$i]){
+			if(isset($done[$a[$i]])){
+				continue;
+			}
+			$done[$a[$i]]=1;
 			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
  			$r[1][$j]=bsdconv($toent,f($a[$i]));
- 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($a[$i],'0').'"'.(($i && ($a[$i]==$a[0]))?' class="hl"':'').' />';
+ 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($a[$i],'0').'" />';
  			$r[3][$j]=bsdconv($tochewing,f($a[$i]));
  			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
  			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($tocp936,f($a[$i])))));
@@ -181,55 +184,16 @@ function chvar_info(){
 	bsdconv_destroy($tounicode);
 }
 
-function chvar_fetch(){
-	global $db;
-	$sql=$db->prepare('SELECT `master`,`slave`,`ctime` FROM `data` WHERE `ctime` > ? ORDER BY `ctime` ASC LIMIT 25');
-	$sql->bind_param('d',$_REQUEST['last']);
-	$sql->execute();
-	$sql->bind_result($m,$s,$c);
-	$data=array();
-#	$cv=bsdconv_create('bsdconv:utf-8,ascii');
-#	while($sql->fetch()){
-#		$data[]=array($m,$s,$c,bsdconv($cv,f($m)),bsdconv($cv,f($s)));
-#	}
-#	bsdconv_destroy($cv);
-	echo json_encode($data);
-}
-
 function chvar_dump(){
 	global $db;
-	$res=$db->query('SELECT * FROM `group` ORDER BY `id`,`data`');
+	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
+	$ret=array();
 	while($r=$res->fetch_assoc()){
-		echo $r['id']."\t".$r['data']."\n";
+		$ret[$r['id']][]=$r['data'];
 	}
-}
-
-function chvar_oomap(){
-	global $db;
-	$m=array();
-	$res=$db->query('SELECT * FROM `data` ORDER BY `master`,`slave`');
-	while($r=$res->fetch_assoc()){
-		$m[$r['slave']][]=$r['master'];
-	}
-	foreach($m as $k=>$v){
-		foreach($v as &$s){
-			$last='';
-			$c=0;
-			while($last!=$s){
-				++$c;
-				if($c>10){
-					die($s);
-				}
-				$last=$s;
-				if(count($m[$s])==1){
-					$s=$m[$s][0];
-				}
-			}
-			unset($s);
-		}
-		if(count($v)==1){
-			echo f($k)."\t".f($v[0])."\n";
-		}
+	foreach($ret as $k=>$v){
+		echo implode(' ',$v);
+		echo "\n";
 	}
 }
 ?>
