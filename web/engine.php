@@ -38,14 +38,67 @@ function dac($d){
 	return $a;
 }
 
+function hl($s){
+	echo "\033[1m";
+	echo $s;
+	echo "\033[m";
+}
+
 function manual_uniq($t,$d){
+	global $toent,$tocp950,$tocp936,$togb2312,$togbk,$tochewing;
 	$stdin=fopen('php://stdin','r');
 	$in='';
 	while(!isset($d[$in])){
 		echo 'Choose one for '.$t.":\n";
+
 		foreach($d as $k=>$v){
-			echo "\t".$k."\n";
+			echo "\t";
+			echo $k;
 		}
+		echo "\n";
+
+		echo hl('Entity');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo bsdconv($toent,f($k));
+		}
+		echo "\n";
+
+		echo hl('Chewing');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo bsdconv($tochewing,f($k));
+		}
+		echo "\n";
+
+		echo hl('CP950');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo strtoupper(bin2hex(bsdconv($tocp950,f($k))));
+		}
+		echo "\n";
+
+		echo hl('CP936');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo strtoupper(bin2hex(bsdconv($tocp936,f($k))));
+		}
+		echo "\n";
+
+		echo hl('GB2312');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo strtoupper(bin2hex(bsdconv($togb2312,f($k))));
+		}
+		echo "\n";
+
+		echo hl('GBK');
+		foreach($d as $k=>$v){
+			echo "\t";
+			echo strtoupper(bin2hex(bsdconv($togbk,f($k))));
+		}
+		echo "\n";
+
 		echo '> ';
 		$in=strtoupper(trim(fgets($stdin)));
 		if($in=='.'){
@@ -74,6 +127,7 @@ function chvar_buildattr(){
 				}
 
 				$_data=dac($data);
+				$_bmp=dac($bmp);
 
 				#cp950
 				if($r2['cp950'] && isset($data[$r2['cp950']])){
@@ -93,6 +147,8 @@ function chvar_buildattr(){
 						$_tw=$_cp950;
 					}elseif(count($_data)==1){
 						$_tw=$_data;
+					}elseif(count($_bmp)==1){
+						$_tw=$_bmp;
 					}else{
 						$_tw=manual_uniq('TW',$data);
 					}
@@ -150,6 +206,8 @@ function chvar_buildattr(){
 						$_cn=$_gbk;
 					}elseif(count($_data)==1){
 						$_cn=$_data;
+					}elseif(count($_bmp)==1){
+						$_cn=$_bmp;
 					}else{
 						$_cn=manual_uniq('CN',$data);
 					}
@@ -159,13 +217,14 @@ function chvar_buildattr(){
 				$db->query('INSERT INTO `attr1` (`id`,`tw`,`cn`,`cp950`,`cp936`,`gb2312`,`gbk`) VALUES ('.$lastid.',"'.$_tw[0].'","'.$_cn[0].'","'.$_cp950[0].'","'.$_cp936[0].'","'.$_gb2312[0].'","'.$_gbk[0].'")');
 			}
 			$lastid=$r['id'];
-			$cn=$tw=$cp950=$cp936=$gb2312=$gbk=$data=array();
+			$bmp=$cn=$tw=$cp950=$cp936=$gb2312=$gbk=$data=array();
 		}
 		if($flush) break;
 		if(bsdconv($tocp950,f($r['data']))){ $cp950[$r['data']]=1; }
 		if(bsdconv($tocp936,f($r['data']))){ $cp936[$r['data']]=1; }
 		if(bsdconv($togb2312,f($r['data']))){ $gb2312[$r['data']]=1; }
 		if(bsdconv($togbk,f($r['data']))){ $gbk[$r['data']]=1; }
+		if(strlen($r['data'])<=4){ $bmp['$r['data']']=1; }
 		$data[$r['data']]=1;
 	}
 }
