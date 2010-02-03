@@ -224,7 +224,7 @@ function chvar_buildattr(){
 		if(bsdconv($tocp936,f($r['data']))){ $cp936[$r['data']]=1; }
 		if(bsdconv($togb2312,f($r['data']))){ $gb2312[$r['data']]=1; }
 		if(bsdconv($togbk,f($r['data']))){ $gbk[$r['data']]=1; }
-		if(strlen($r['data'])<=4){ $bmp['$r['data']']=1; }
+		if(strlen($r['data'])<=4){ $bmp[$r['data']]=1; }
 		$data[$r['data']]=1;
 	}
 }
