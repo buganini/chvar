@@ -270,8 +270,24 @@ function chvar_info(){
 }
 
 function chvar_dump(){
+	$func='chvar_dump_'.$_REQUEST['mode'];
+	if(function_exists($func)){
+		$func();
+	}
+}
+
+function chvar_dump_level1(){
 	global $db;
 	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
+	while($r=$res->fetch_assoc()){
+		echo $r['id']."\t".$r['data'];
+		echo "\n";
+	}
+}
+
+function chvar_dump_level2(){
+	global $db;
+	$res=$db->query('SELECT * FROM `group2` ORDER BY `id`,`data`');
 	while($r=$res->fetch_assoc()){
 		echo $r['id']."\t".$r['data'];
 		echo "\n";
