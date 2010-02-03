@@ -130,7 +130,9 @@ function chvar_buildattr(){
 				$_bmp=dac($bmp);
 
 				#cp950
-				if($r2['cp950'] && isset($data[$r2['cp950']])){
+				if(count($_cp950)==count($_data)){
+					$_cp950=array('');
+				}elseif($r2['cp950'] && isset($data[$r2['cp950']])){
 					$_cp950=array($r2['cp950']);
 				}else{
 					$_cp950=dac($cp950);
@@ -155,7 +157,9 @@ function chvar_buildattr(){
 				}
 
 				#gb2312
-				if($r2['gb2312'] && isset($data[$r2['gb2312']])){
+				if(count($_gb2312)==count($_data)){
+					$_gb2312=array('');
+				}elseif($r2['gb2312'] && isset($data[$r2['gb2312']])){
 					$_gb2312=array($r2['gb2312']);
 				}else{
 					$_gb2312=dac($gb2312);
@@ -165,7 +169,9 @@ function chvar_buildattr(){
 				}
 	
 				#cp936
-				if($r2['cp936'] && isset($data[$r2['cp936']])){
+				if(count($_cp936)==count($_data)){
+					$_cp936=array('');
+				}elseif($r2['cp936'] && isset($data[$r2['cp936']])){
 					$_cp936=array($r2['cp936']);
 				}else{
 					$_cp936=dac($cp936);
@@ -179,7 +185,9 @@ function chvar_buildattr(){
 				}
 
 				#gbk
-				if($r2['gbk'] && isset($data[$r2['gbk']])){
+				if(count($_gbk)==count($_data)){
+					$_gbk=array('');
+				}elseif($r2['gbk'] && isset($data[$r2['gbk']])){
 					$_gbk=array($r2['gbk']);
 				}else{
 					$_gbk=dac($gbk);
