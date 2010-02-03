@@ -477,7 +477,7 @@ function chvar_dump(){
 	}
 }
 
-function chvar_dump_level1(){
+function chvar_dump_group1(){
 	global $db;
 	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
 	while($r=$res->fetch_assoc()){
@@ -486,11 +486,22 @@ function chvar_dump_level1(){
 	}
 }
 
-function chvar_dump_level2(){
+function chvar_dump_group2(){
 	global $db;
 	$res=$db->query('SELECT * FROM `group2` ORDER BY `id`,`data`');
 	while($r=$res->fetch_assoc()){
 		echo $r['id']."\t".$r['data'];
+		echo "\n";
+	}
+}
+
+function chvar_dump_attr1(){
+	global $db;
+	$res=$db->query('SELECT * FROM `attr1` ORDER BY `id`');
+	echo 'ID	TW	CN	CP950	CP936	GB2312	GBK';
+	echo "\n";
+	while($r=$res->fetch_assoc()){
+		echo "{$r['id']}\t{$r['tw']}\t{$r['cn']}\t{$r['cp950']}\t{$r['cp936']}\t{$r['gb2312']}\t{$r['gbk']}";
 		echo "\n";
 	}
 }
