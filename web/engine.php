@@ -253,7 +253,7 @@ function chvar_addgrp1(){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
 			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-			$tmp=substr($tmp[0],2);
+			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
 		if($a[$i] && !isset($done[$a[$i]])){
@@ -316,7 +316,7 @@ function chvar_related1(){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
 			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-			$tmp=substr($tmp[0],2);
+			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
 		$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'"');
@@ -384,7 +384,7 @@ function chvar_grp2can(){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
 			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-			$tmp=substr($tmp[0],2);
+			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
 		$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'"');
@@ -437,7 +437,7 @@ function chvar_info(){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
 			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
-			$tmp=substr($tmp[0],2);
+			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
 		if($a[$i]){
