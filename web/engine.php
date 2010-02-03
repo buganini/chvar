@@ -11,7 +11,19 @@ if(function_exists($func)){
 	$db->autocommit(true);
 	$db->query('SET NAMES UTF8');
 	$db->query('LOCK TABLES');
+	$toent=bsdconv_create('bsdconv:utf-8,ascii');
+	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
+	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
+	$tocp936=bsdconv_create('bsdconv:cp936,ascii');
+	$togb2312=bsdconv_create('bsdconv:gb2312,ascii');
+	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
 	$func();
+	bsdconv_destroy($toent);
+	bsdconv_destroy($tocp950);
+	bsdconv_destroy($tochewing);
+	bsdconv_destroy($tocp936);
+	bsdconv_destroy($togb2312);
+	bsdconv_destroy($tounicode);
 	$db->query('UNLOCK TABLES');
 	$db->close();
 }
@@ -23,14 +35,12 @@ function hexval($s){
 }
 
 
-function chvar_addgrp(){
-	global $db;
-	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+function chvar_addgrp1(){
+	global $db,$tounicode;
 	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
 	$nid=intval($_POST['id']);
-	$lv=intval($_POST['level']);
 	if(!$nid){
-		$res=$db->query('SELECT `id` FROM `group'.$lv.'` ORDER BY `id` DESC LIMIT 1');
+		$res=$db->query('SELECT `id` FROM `group1` ORDER BY `id` DESC LIMIT 1');
 		if($r=$res->fetch_assoc()){
 			$nid=$r['id']+1;
 		}else{
@@ -47,14 +57,35 @@ function chvar_addgrp(){
 		$a[$i]=$tmp;
 		if($a[$i] && !isset($done[$a[$i]])){
 			$done[$a[$i]]=0;
-			$sql=$db->prepare('INSERT INTO `group'.$lv.'` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group'.$lv.'` WHERE `id`=? AND `data`=? LIMIT 1)');
+			$sql=$db->prepare('INSERT INTO `group1` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group1` WHERE `id`=? AND `data`=? LIMIT 1)');
 			$sql->bind_param('isis',$nid,$a[$i],$nid,$a[$i]);
 			$sql->execute();
 		}
 	}
-	bsdconv_destroy($tounicode);
 }
 
+function chvar_addgrp2(){
+	global $db;
+	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
+	$nid=intval($_POST['id']);
+	if(!$nid){
+		$res=$db->query('SELECT `id` FROM `group2` ORDER BY `id` DESC LIMIT 1');
+		if($r=$res->fetch_assoc()){
+			$nid=$r['id']+1;
+		}else{
+			$nid=1;
+		}
+	}
+	$done=array();
+	for($i=0;$i<count($a);++$i){
+		if($a[$i] && !isset($done[$a[$i]])){
+			$done[$a[$i]]=0;
+			$sql=$db->prepare('INSERT INTO `group2` (`id`,`data`) SELECT ?,? FROM `axiom` WHERE NOT EXISTS (SELECT 1 FROM `group2` WHERE `id`=? AND `data`=? LIMIT 1)');
+			$sql->bind_param('iiii',$nid,$a[$i],$nid,$a[$i]);
+			$sql->execute();
+		}
+	}
+}
 
 function f($s){
 	$s=hexval($s);
@@ -71,14 +102,11 @@ function pad($s){
 	return '&nbsp;';
 }
 
-function chvar_related(){
-	global $db;
-	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
-	$toutf8=bsdconv_create('bsdconv:utf-8,ascii');
-	if(!$tounicode || !$toutf8){
+function chvar_related1(){
+	global $db,$tounicode,$toent;
+	if(!$tounicode || !$toent){
 		die('Failed');
 	}
-	$lv=$_REQUEST['level'];
 	$s=$_REQUEST['text'];
 	$s=str_replace('"','',$s);
 	$a=preg_split('/\s+/',trim($s));
@@ -95,12 +123,7 @@ function chvar_related(){
 			$rel[$r['id']]=1;
 		}
 	}
-#	for($l){
-#		$nrel=array();
-#
-#		$rel=$nrel;
-#	}
-	echo '<input type="radio" name="id" value="0" checked="checked" onClick="nid=0" /> &lt;New ID&gt;<br />';
+	echo '<input type="radio" name="id" checked="checked" onClick="nid=0" /> &lt;New ID&gt;<br />';
 	$a=array();
 	foreach($rel as $k=>$v){
 		$a[]=$k;
@@ -108,23 +131,91 @@ function chvar_related(){
 	sort($a);
 	foreach($a as $k){
 		echo '<input type="radio" name="id" onClick="nid='.$k.'" /> <'.$k.'>';
-		$res=$db->query('SELECT * FROM `group'.$lv.'` WHERE `id`="'.$k.'"');
+		$res=$db->query('SELECT * FROM `group1` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
-			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toutf8,f($r['data'])).'" />]</a>';
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
 		}
 		echo '<br />';
 	}
-	bsdconv_destroy($tounicode);
-	bsdconv_destroy($toutf8);
+}
+
+function chvar_related2(){
+	global $db,$tounicode,$toent;
+	if(!$tounicode || !$toent){
+		die('Failed');
+	}
+	$s=$_REQUEST['text'];
+	$s=str_replace('"','',$s);
+	$a=preg_split('/\s+/',trim($s));
+	$rel=array();
+	for($i=0,$j=1;$i<count($a);++$i){
+		$res=$db->query('SELECT * FROM `group2` WHERE `data`="'.$a[$i].'"');
+		while($r=$res->fetch_assoc()){
+			$rel[$r['id']]=1;
+		}
+	}
+	echo '<input type="radio" name="id2" checked="checked" onClick="nid2=0" /> &lt;New ID&gt;<br />';
+	$a=array();
+	foreach($rel as $k=>$v){
+		$a[]=$k;
+	}
+	sort($a);
+	foreach($a as $k){
+		echo '<input type="radio" name="id2" onClick="nid2='.$k.'" /> <'.$k.'>';
+		$res=$db->query('SELECT * FROM `group2` WHERE `id`="'.$k.'"');
+		while($r=$res->fetch_assoc()){
+			echo ' <a onmouseover="showinfo2(\''.$r['data'].'\')">'.$r['data'].'</a>';
+		}
+		echo '<br />';
+	}
+}
+
+function chvar_grp2can(){
+	global $db,$tounicode,$toent;
+	if(!$tounicode || !$toent){
+		die('Failed');
+	}
+	$s=$_REQUEST['text'];
+	$s=str_replace('"','',$s);
+	$a=preg_split('/\s+/',trim($s));
+	$rel=array();
+	for($i=0,$j=1;$i<count($a);++$i){
+		$tmp=hexval($a[$i]);
+		if($tmp==''){
+			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=substr($tmp[0],2);
+		}
+		$a[$i]=$tmp;
+		$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'"');
+		while($r=$res->fetch_assoc()){
+			$rel[$r['id']]=1;
+		}
+	}
+	$a=array();
+	foreach($rel as $k=>$v){
+		$a[]=$k;
+	}
+	sort($a);
+	foreach($a as $k){
+		echo '<input type="checkbox" name="can2[]" checked="checked" value="'.$k.'" onClick="showrelated2()" /> <'.$k.'>';
+		$res=$db->query('SELECT * FROM `group1` WHERE `id`="'.$k.'"');
+		while($r=$res->fetch_assoc()){
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
+		}
+		echo '<br />';
+	}
+}
+
+function chvar_info2(){
+	global $db;
+	$res=$db->query('SELECT * FROM `group1` WHERE `id`='.intval($_POST['text']));
+	while($r=$res->fetch_assoc()){
+		echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
+	}
 }
 
 function chvar_info(){
-	$toent=bsdconv_create('bsdconv:utf-8,ascii');
-	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
-	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
-	$tocp936=bsdconv_create('bsdconv:cp936,ascii');
-	$togb2312=bsdconv_create('bsdconv:gb2312,ascii');
-	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	global $toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312;
 	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312){
 		die('Failed');
 	}
@@ -176,12 +267,6 @@ function chvar_info(){
 		}
 	}
 	echo '</td></tr></table>';
-	bsdconv_destroy($toent);
-	bsdconv_destroy($tocp950);
-	bsdconv_destroy($tochewing);
-	bsdconv_destroy($tocp936);
-	bsdconv_destroy($togb2312);
-	bsdconv_destroy($tounicode);
 }
 
 function chvar_dump(){

@@ -26,10 +26,19 @@ function doKeyDown(ev){
 		kc=ev.keyCode;
 	}
 	if (ev.ctrlKey && kc == 13){
-		addgrp();
+		dosubmit();
 		return false;
 	}
 } 
+
+function dosubmit(){
+	var i=parseInt($('#level').val());
+	if(i==1){
+		addgrp1();
+	}else if(i==2){
+		addgrp2();
+	}
+}
 
 function getinfo(){
 	if(lc!=$('#text').val()){
@@ -39,59 +48,86 @@ function getinfo(){
 			text: lc
 		},function(t){$('#glyph').html(t);},"html");
 	}
-	showrelated();
+	showrelated1();
 }
 
-function showrelated(){
-		html=$.post('engine.php',{
-			action: 'related',
-			level: $('#level').val(),
-			text: lc
-		},function(t){$('#related').html(t); nid=0;},"html");
+function showrelated1(){
+	$.post('engine.php',{
+		action: 'related1',
+		text: lc
+	},function(t){$('#related').html(t); nid=0;},"html");
+	if(parseInt($('#level').val())>1){
+		showgrp2can();
+	}
+}
+
+function showgrp2can(){
+	$.post('engine.php',{
+		action: 'grp2can',
+		text: lc
+	},function(t){$('#grp2can').html(t); showrelated2();},"html");
+}
+
+function showrelated2(){
+	s='';
+	$('input:checkbox:checked[name=can2[]]').each(function(){s+=this.value+' ';});	
+	$.post('engine.php',{
+		action: 'related2',
+		text: s
+	},function(t){$('#related2').html(t); nid2=0;},"html");
 }
 
 function showinfo(s){
-	html=$.post('engine.php',{
-		level: $('#level').val(),
+	$.post('engine.php',{
 		action: 'info',
 		text: s
 	},function(t){$('#info').html(t);},"html");
 }
 
-function update(dat){
-	dat=eval(dat);
-	if(dat.length==0){
-		return;
-	}
+function showinfo2(s){
+	$.post('engine.php',{
+		action: 'info2',
+		text: s
+	},function(t){$('#info2').html(t);},"html");
 }
 
-function addgrp(){
+function addgrp1(){
 	$.post('engine.php',{
-		action: 'addgrp',
+		action: 'addgrp1',
 		id: nid,
-		level: $('#level').val(),
 		text: $('#text').val(),
-	},update,"json");
-	showrelated();
+	},function(){showrelated1();},"json");
+}
+function addgrp2(){
+	s='';
+	$('input:checkbox:checked[name=can2[]]').each(function(){s+=this.value+' ';});
+	$.post('engine.php',{
+		action: 'addgrp2',
+		id: nid2,
+		text: s,
+	},function(){showrelated2();},"json");
 }
 </script>
 </head>
 <body onkeydown="doKeyDown(event)">
+<span style="width:50%; float:left;">
 <select id="level">
-<option value="1">Equivalent</option>
+<option value="1">Similar</option>
 <option value="2">Borrow</option>
-<option value="3">Mistake</option>
 </select><br />
-<textarea id="text" onKeyup="getinfo()"></textarea>
-<input type="button" value="Submit" onClick="addgrp()" />
+<textarea id="text" onKeyup="getinfo();"></textarea>
+<input type="button" value="Submit" onClick="dosubmit()" />
 <div id="glyph"></div>
-<hr />
-<div id="info" style="position:fixed; right:0;"></div>
-<div id="related">
-</div>
+</span><span style="float:left;" id="grp2can"></span>
+<hr style="clear:both;" />
+<span id="related" style="float:left; width:35%;"></span>
+<div id="info" style="float:left; width:15%;"></div>
+<span id="related2" style="float:left;"></span>
+<div id="info2" style="clear:both; text-align:center;"></div>
 <script type="text/javascript">
 	lc='';
 	nid=0;
+	nid2=0;
 </script>
 </body>
 </html>
