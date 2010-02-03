@@ -16,6 +16,7 @@ if(function_exists($func)){
 	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
 	$tocp936=bsdconv_create('bsdconv:cp936,ascii');
 	$togb2312=bsdconv_create('bsdconv:gb2312,ascii');
+	$togbk=bsdconv_create('bsdconv:gbk,ascii');
 	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
 	$func();
 	bsdconv_destroy($toent);
@@ -23,9 +24,150 @@ if(function_exists($func)){
 	bsdconv_destroy($tochewing);
 	bsdconv_destroy($tocp936);
 	bsdconv_destroy($togb2312);
+	bsdconv_destroy($togbk);
 	bsdconv_destroy($tounicode);
 	$db->query('UNLOCK TABLES');
 	$db->close();
+}
+
+function dac($d){
+	$a=array();
+	foreach($d as $k=>$v){
+		$a[]=$k;
+	}
+	return $a;
+}
+
+function manual_uniq($t,$d){
+	$stdin=fopen('php://stdin','r');
+	$in='';
+	while(!isset($d[$in])){
+		echo 'Choose one for '.$t.":\n";
+		foreach($d as $k=>$v){
+			echo "\t".$k."\n";
+		}
+		echo '> ';
+		$in=strtoupper(trim(fgets($stdin)));
+		if($in=='.'){
+			$in='';
+			break;
+		}
+	}
+	fclose($stdin);
+	return array($in);
+}
+
+function chvar_buildattr(){
+	global $db,$tocp950,$tocp936,$togb2312,$togbk;
+	echo "Building level 1 group attribute...\n";
+	$lastid=0;
+
+	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
+	$flush=0;
+	while(($r=$res->fetch_assoc()) || ($flush=1)){
+		if(($lastid!=$r['id'])){
+			if($lastid){
+				$res2=$db->query('SELECT * FROM `attr1` WHERE `id`='.$lastid);
+				if($r2=$res2->fetch_assoc()){
+				}else{
+					$r2=array();
+				}
+
+				$_data=dac($data);
+
+				#cp950
+				if($r2['cp950'] && isset($data[$r2['cp950']])){
+					$_cp950=array($r2['cp950']);
+				}else{
+					$_cp950=dac($cp950);
+					if(count($_cp950)>1){
+						$_cp950=manual_uniq('CP950',$cp950);
+					}
+				}
+
+				#tw
+				if($r2['tw'] && isset($data[$r2['tw']])){
+					$_tw=array($r2['tw']);
+				}else{
+					if($_cp950[0]){
+						$_tw=$_cp950;
+					}elseif(count($_data)==1){
+						$_tw=$_data;
+					}else{
+						$_tw=manual_uniq('TW',$data);
+					}
+				}
+
+				#gb2312
+				if($r2['gb2312'] && isset($data[$r2['gb2312']])){
+					$_gb2312=array($r2['gb2312']);
+				}else{
+					$_gb2312=dac($gb2312);
+					if(count($_gb2312)>1){
+						$_gb2312=manual_uniq('GB2312',$gb2312);
+					}
+				}
+	
+				#cp936
+				if($r2['cp936'] && isset($data[$r2['cp936']])){
+					$_cp936=array($r2['cp936']);
+				}else{
+					$_cp936=dac($cp936);
+					if(count($_cp936)>1){
+						if(isset($cp936[$_gb2312[0]])){
+							$_cp936=$_gb2312;
+						}else{
+							$_cp936=manual_uniq('CP936',$cp936);
+						}
+					}
+				}
+
+				#gbk
+				if($r2['gbk'] && isset($data[$r2['gbk']])){
+					$_gbk=array($r2['gbk']);
+				}else{
+					$_gbk=dac($gbk);
+					if(count($_gbk)>1){
+						if(isset($gbk[$_gb2312[0]])){
+							$_gbk=$_gb2312;
+						}elseif(isset($gbk[$_cp936[0]])){
+							$_gbk=$cp936;
+						}else{
+							$_gbk=manual_uniq('GBK',$gbk);
+						}
+					}
+				}
+
+				#cn
+				if($r2['cn'] && isset($data[$r2['cn']])){
+					$_cn=array($r2['cn']);
+				}else{
+					if($_gb2312[0]){
+						$_cn=$_gb2312;
+					}elseif($_cp936[0]){
+						$_cn=$_cp936;
+					}elseif($_gbk[0]){
+						$_cn=$_gbk;
+					}elseif(count($_data)==1){
+						$_cn=$_data;
+					}else{
+						$_cn=manual_uniq('CN',$data);
+					}
+				}
+
+				$db->query('DELETE FROM `attr1` WHERE `id`='.$lastid);
+				$db->query('INSERT INTO `attr1` (`id`,`tw`,`cn`,`cp950`,`cp936`,`gb2312`,`gbk`) VALUES ('.$lastid.',"'.$_tw[0].'","'.$_cn[0].'","'.$_cp950[0].'","'.$_cp936[0].'","'.$_gb2312[0].'","'.$_gbk[0].'")');
+			}
+			$lastid=$r['id'];
+			$cn=$tw=$cp950=$cp936=$gb2312=$gbk=$data=array();
+		}
+		if($flush) break;
+		if(bsdconv($tocp950,f($r['data']))){ $cp950[$r['data']]=1; }
+		if(bsdconv($tocp936,f($r['data']))){ $cp936[$r['data']]=1; }
+		if(bsdconv($togb2312,f($r['data']))){ $gb2312[$r['data']]=1; }
+		if(bsdconv($togbk,f($r['data']))){ $gbk[$r['data']]=1; }
+		$data[$r['data']]=1;
+	}
 }
 
 function hexval($s){
