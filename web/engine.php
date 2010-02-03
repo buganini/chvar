@@ -408,7 +408,7 @@ function chvar_grp2can(){
 }
 
 function chvar_info2(){
-	global $db;
+	global $db,$toent;
 	$res=$db->query('SELECT * FROM `group1` WHERE `id`='.intval($_POST['text']));
 	while($r=$res->fetch_assoc()){
 		echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
