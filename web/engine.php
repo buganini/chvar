@@ -414,7 +414,7 @@ function chvar_addgrp1(){
 }
 
 function chvar_addgrp2(){
-	safe_only();
+	safeonly();
 	global $db;
 	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
 	$nid=intval($_POST['id']);
