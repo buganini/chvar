@@ -2,6 +2,16 @@
 ignore_user_abort(true);
 set_time_limit(0);
 
+function clionly(){
+	if(!isset($argv)){
+		die('CLI only');
+	}
+}
+
+function safeonly(){
+	die();
+}
+
 if(isset($argv[1])){
 	$_REQUEST['action']=$argv[1];
 	$_REQUEST['mode']=$argv[2];
@@ -113,6 +123,7 @@ function manual_uniq($t,$d){
 }
 
 function chvar_buildattr1(){
+	clionly();
 	global $db,$tocp950,$tocp936,$togb2312,$togbk;
 	echo "Building level 1 group attribute...\n";
 	$lastid=0;
@@ -242,6 +253,7 @@ function magic_uniq($s,$d){
 }
 
 function chvar_buildattr2(){
+	clionly();
 	global $db,$tocp950,$tocp936,$togb2312,$togbk;
 	echo "Building level 2 group attribute...\n";
 	$lastid=0;
@@ -372,6 +384,7 @@ function hexval($s){
 
 
 function chvar_addgrp1(){
+	safeonly();
 	global $db,$tounicode;
 	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
 	$nid=intval($_POST['id']);
@@ -401,6 +414,7 @@ function chvar_addgrp1(){
 }
 
 function chvar_addgrp2(){
+	safe_only();
 	global $db;
 	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
 	$nid=intval($_POST['id']);
