@@ -565,9 +565,10 @@ function chvar_info2(){
 }
 
 function chvar_info(){
-	global $toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312;
-	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312){
-		die('Failed');
+	global $toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312,$togbk;
+	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312 || !$togbk){
+		echo 'Failed';
+		return;
 	}
 	$r=array(
 		array('Unicode'),
@@ -576,7 +577,8 @@ function chvar_info(){
 		array('Chewing'),
 		array('CP950'),
 		array('CP936'),
-		array('GB2312')
+		array('GB2312'),
+		array('GBK')
 	);
 	$done=array();
 	$s=$_REQUEST['text'];
@@ -601,6 +603,7 @@ function chvar_info(){
  			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
  			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($tocp936,f($a[$i])))));
  			$r[6][$j]=pad(strtoupper(bin2hex(bsdconv($togb2312,f($a[$i])))));
+ 			$r[7][$j]=pad(strtoupper(bin2hex(bsdconv($togbk,f($a[$i])))));
 			++$j;
 		}
 	}
