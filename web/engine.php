@@ -3,12 +3,14 @@ ignore_user_abort(true);
 set_time_limit(0);
 
 function clionly(){
+	global $argv;
 	if(!isset($argv)){
 		die('CLI only');
 	}
 }
 
 function safeonly(){
+	if($_SERVER['REMOTE_ADDR']!='192.168.1.254')
 	die();
 }
 
