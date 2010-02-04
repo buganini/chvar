@@ -688,7 +688,48 @@ function acmp($a,$b){
 }
 
 function chvar_dump_fuzzy(){
-
+	global $db;
+	$for=$_REQUEST['for'];
+	switch($for){
+		case 'tw':
+		case 'cn':
+			break;
+		default:
+			return;
+	}
+	$acc=array(''=>-1);
+	$dict=array();
+	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`,`data`');
+	while($r=$res->fetch_assoc()){
+		$res2=$db->query('SELECT * FROM `group2` WHERE `data`='.$r['id']);
+		$i=0;
+		while($r2=$res2->fetch_assoc()){
+			$attr=get_attr(2,$r2['id']);
+			$dict[$r['data']][$attr[$for]]=1;
+			++$acc[$attr[$for]];
+			++$i;
+		}
+		if($i==0){
+			$attr=get_attr(1,$r['id']);
+			$dict[$r['data']][$attr[$for]]=1;
+			++$acc[$attr[$for]];
+		}
+	}
+	$ret=array();
+	foreach($dict as $k=>$v){
+		#XXX [(A]<B){C>} situation?
+		$max='';
+		foreach($v as $k2=>$v2){
+			if($acc[$k2]>$acc[$max]){
+				$max=$k2;
+			}
+		}
+		$ret[]=array($k,$max);
+	}
+	usort($ret,'acmp');
+	foreach($ret as $a){
+		echo $a[0]."\t".$a[1]."\n";		
+	}
 }
 
 function chvar_dump_trans(){
