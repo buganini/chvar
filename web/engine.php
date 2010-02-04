@@ -132,10 +132,7 @@ function chvar_buildattr(){
 					$_cp950=array($r2['cp950']);
 				}else{
 					$_cp950=dac($cp950);
-					
-					if(isset($r2['tw']) && bsdconv($tocp950,$r2['tw'])){
-						$_cp950=array($r2['tw']);
-					}elseif(count($_cp950)>1){
+					if(count($_cp950)>1){
 						$_cp950=manual_uniq('CP950',$cp950);
 					}
 				}
@@ -160,9 +157,7 @@ function chvar_buildattr(){
 					$_gb2312=array($r2['gb2312']);
 				}else{
 					$_gb2312=dac($gb2312);
-					if(isset($r2['cn']) && bsdconv($togb2312,$r2['cn'])){
-						$_gb2312=array($r2['cn']);
-					}elseif(count($_gb2312)>1){
+					if(count($_gb2312)>1){
 						$_gb2312=manual_uniq('GB2312',$gb2312);
 					}
 				}
