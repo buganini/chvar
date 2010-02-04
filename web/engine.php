@@ -227,6 +227,20 @@ function chvar_buildattr1(){
 	}
 }
 
+function magic_uniq($s,$d){
+	global $tocp950,$tocp936,$togb2312,$togbk;
+	$r=array();
+	foreach($d as $k=>$v){
+		if(bsdconv($tocp950,f($k)) && bsdconv($tocp936,f($k)) && bsdconv($togb2312,f($k)) && bsdconv($togbk,f($k))){
+			$r[]=$k;
+		}
+	}
+	if(count($r)==1){
+		return $r;
+	}
+	return manual_uniq($s,$d);
+}
+
 function chvar_buildattr2(){
 	global $db,$tocp950,$tocp936,$togb2312,$togbk;
 	echo "Building level 2 group attribute...\n";
@@ -252,7 +266,7 @@ function chvar_buildattr2(){
 				}else{
 					$_cp950=dac($cp950);
 					if(count($_cp950)>1){
-						$_cp950=manual_uniq('CP950',$cp950);
+						$_cp950=magic_uniq('CP950',$cp950);
 					}
 				}
 
@@ -267,7 +281,7 @@ function chvar_buildattr2(){
 					}elseif(count($_bmp)==1){
 						$_tw=$_bmp;
 					}else{
-						$_tw=manual_uniq('TW',$data);
+						$_tw=magic_uniq('TW',$data);
 					}
 				}
 
@@ -277,7 +291,7 @@ function chvar_buildattr2(){
 				}else{
 					$_gb2312=dac($gb2312);
 					if(count($_gb2312)>1){
-						$_gb2312=manual_uniq('GB2312',$gb2312);
+						$_gb2312=magic_uniq('GB2312',$gb2312);
 					}
 				}
 	
@@ -290,7 +304,7 @@ function chvar_buildattr2(){
 						if(isset($cp936[$_gb2312[0]])){
 							$_cp936=$_gb2312;
 						}else{
-							$_cp936=manual_uniq('CP936',$cp936);
+							$_cp936=magic_uniq('CP936',$cp936);
 						}
 					}
 				}
@@ -306,7 +320,7 @@ function chvar_buildattr2(){
 						}elseif(isset($gbk[$_cp936[0]])){
 							$_gbk=$cp936;
 						}else{
-							$_gbk=manual_uniq('GBK',$gbk);
+							$_gbk=magic_uniq('GBK',$gbk);
 						}
 					}
 				}
@@ -326,7 +340,7 @@ function chvar_buildattr2(){
 					}elseif(count($_data)==1){
 						$_cn=$_data;
 					}else{
-						$_cn=manual_uniq('CN',$data);
+						$_cn=magic_uniq('CN',$data);
 					}
 				}
 
