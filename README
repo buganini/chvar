@@ -11,6 +11,7 @@ provided: tw, cn
 
 Get fuzzy table:
 http://security-hole.info/chvar/engine.php?action=dump&mode=fuzzy
+provided: tw,cn
 
 
 Dump group data:
