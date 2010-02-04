@@ -112,7 +112,7 @@ function manual_uniq($t,$d){
 	return array($in);
 }
 
-function chvar_buildattr(){
+function chvar_buildattr1(){
 	global $db,$tocp950,$tocp936,$togb2312,$togbk;
 	echo "Building level 1 group attribute...\n";
 	$lastid=0;
@@ -225,7 +225,10 @@ function chvar_buildattr(){
 		if(strlen($r['data'])<=4){ $bmp[$r['data']]=1; }
 		$data[$r['data']]=1;
 	}
-/*
+}
+
+function chvar_buildattr2(){
+	global $db,$tocp950,$tocp936,$togb2312,$togbk;
 	echo "Building level 2 group attribute...\n";
 	$lastid=0;
 
@@ -344,7 +347,7 @@ function chvar_buildattr(){
 		$data[$attr['tw']]=1;
 		$data[$attr['cn']]=1;
 	}
-*/
+
 }
 
 function hexval($s){
