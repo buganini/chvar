@@ -529,6 +529,14 @@ function get_attr($lv,$id){
 	return;
 }
 
+function acmp($a,$b){
+	$r=strcmp($a[0],$b[0]);
+	if($r!=0)
+		return $r;
+	else
+		return strcmp($a[1],$b[1]);
+}
+
 function chvar_dump_fuzzy(){
 
 }
@@ -583,7 +591,7 @@ function chvar_dump_trans(){
 #		}
 		$ret[]=array($k,$v[0]);
 	}
-	sort($ret);
+	usort($ret,'acmp');
 	foreach($ret as $a){
 		echo $a[0]."\t".$a[1]."\n";
 	}
@@ -617,7 +625,7 @@ function chvar_dump_norml(){
 		}
 		$ret[]=array($k,$v[0]);
 	}
-	sort($ret);
+	usort($ret,'acmp');
 	foreach($ret as $a){
 		echo $a[0]."\t".$a[1]."\n";
 	}
