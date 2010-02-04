@@ -4,6 +4,8 @@ set_time_limit(0);
 
 if(isset($argv[1])){
 	$_REQUEST['action']=$argv[1];
+	$_REQUEST['mode']=$argv[2];
+	$_REQUEST['for']=$argv[3];
 }
 $func='chvar_'.$_REQUEST['action'];
 if(function_exists($func)){
@@ -511,6 +513,110 @@ function chvar_dump_attr1(){
 	while($r=$res->fetch_assoc()){
 		echo "{$r['id']}\t{$r['tw']}\t{$r['cn']}\t{$r['cp950']}\t{$r['cp936']}\t{$r['gb2312']}\t{$r['gbk']}";
 		echo "\n";
+	}
+}
+
+function get_attr($lv,$id){
+	global $db,$attr;
+	if(isset($attr[$lv][$id])){
+		return $attr[$lv][$id];
+	}
+	$res=$db->query('SELECT * FROM `attr'.$lv.'` WHERE `id`='.$id);
+	if($r=$res->fetch_assoc()){
+		$attr[$lv][$id]=$r;
+		return $r;
+	}
+	return;
+}
+
+function chvar_dump_fuzzy(){
+
+}
+
+function chvar_dump_trans(){
+	global $db,$tocp950,$tocp936,$togb2312,$togbk;
+	$for=$_REQUEST['for'];
+	switch($for){
+		case 'cp950':
+			$conv=$tocp950;
+			break;
+		case 'cp936':
+			$conv=$tocp936;
+			break;
+		case 'gb2312':
+			$conv=$togb2312;
+			break;
+		case 'gbk':
+			$conv=$togbk;
+			break;
+		default:
+			return;
+	}
+	$dict=array();
+	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`');
+	while($r=$res->fetch_assoc()){
+		if(bsdconv($conv,f($r['data']))){
+			continue;
+		}
+		$attr=get_attr(1,$r['id']);
+		if($attr[$for]){
+			$dict[$r['data']][]=$attr[$for];
+		}
+	}
+	$ret=array();
+	foreach($dict as $k=>$v){
+		if(count($v)==0){
+			$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$k.'"');
+			while($r=$res->fetch_assoc()){
+				$res2=$db->query('SELECT * FROM `group2` WHERE `data`='.$r['id']);
+				while($r2=$res2->fetch_assoc()){
+					$attr=get_attr(2,$r2['id']);
+					if($attr[$for]){
+						$dict[$k][]=$attr[$for];
+					}
+				}
+			}
+		}
+#		if(count($v)>1){
+#			echo $k."\t".implode(' ',$v)."\n";
+#			continue;
+#		}
+		$ret[]=array($k,$v[0]);
+	}
+	sort($ret);
+	foreach($ret as $a){
+		echo $a[0]."\t".$a[1]."\n";
+	}
+}
+
+function chvar_dump_norml(){
+	global $db;
+	$for=$_REQUEST['for'];
+	switch($for){
+		case 'tw':
+		case 'cn':
+			break;
+		default:
+			return;
+	}
+	$dict=array();
+	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`');
+	while($r=$res->fetch_assoc()){
+		$attr=get_attr(1,$r['id']);
+		if($attr[$for]){
+			$dict[$r['data']][]=$attr[$for];
+		}
+	}
+	$ret=array();
+	foreach($dict as $k=>$v){
+		if(count($v)>1){
+			continue;
+		}
+		$ret[]=array($k,$v[0]);
+	}
+	sort($ret);
+	foreach($ret as $a){
+		echo $a[0]."\t".$a[1]."\n";
 	}
 }
 ?>
