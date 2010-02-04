@@ -612,6 +612,9 @@ function chvar_dump_norml(){
 		if(count($v)>1){
 			continue;
 		}
+		if($k==$v[0]){
+			continue;
+		}
 		$ret[]=array($k,$v[0]);
 	}
 	sort($ret);
