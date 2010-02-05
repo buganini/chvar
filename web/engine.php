@@ -447,6 +447,14 @@ function f($s){
 	return '01'.$s;
 }
 
+function z($s){
+	$s=hexval($s);
+	if(strlen($s) % 2){
+		return '0'.$s;
+	}
+	return $s;
+}
+
 function pad($s){
 	if($s){
 		return $s;
@@ -729,7 +737,7 @@ function chvar_dump_fuzzy(){
 				$max=$k2;
 			}
 		}
-		$ret[]=array($k,$max);
+		$ret[]=array(z($k),z($max));
 	}
 	usort($ret,'acmp');
 	foreach($ret as $a){
@@ -785,7 +793,7 @@ function chvar_dump_trans(){
 #			echo $k."\t".implode(' ',$v)."\n";
 #			continue;
 #		}
-		$ret[]=array($k,$v[0]);
+		$ret[]=array(z($k),z(bin2hex(bsdconv($conv,f($v[0])))));
 	}
 	usort($ret,'acmp');
 	foreach($ret as $a){
@@ -819,7 +827,7 @@ function chvar_dump_norml(){
 		if($k==$v[0]){
 			continue;
 		}
-		$ret[]=array($k,$v[0]);
+		$ret[]=array(z($k),z($v[0]));
 	}
 	usort($ret,'acmp');
 	foreach($ret as $a){
