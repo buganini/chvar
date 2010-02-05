@@ -110,18 +110,17 @@ function addgrp2(){
 </script>
 </head>
 <body onkeydown="doKeyDown(event)" onFocus="document.getElementById('text').focus()">
-<span style="width:50%; float:left;">
 <select id="level" onChange="showrelated1()">
 <option value="1">Similar</option>
 <option value="2">Borrow</option>
 </select><br />
 <textarea id="text" onKeyup="getinfo();"></textarea>
-<input type="button" value="Submit" onClick="dosubmit()" />
-<div id="glyph"></div>
+<input type="button" value="Submit" onClick="dosubmit()" /><br />
+<span style="width:50%; float:left; overflow-x:scroll;" id="glyph">
 </span><span style="float:left;" id="grp2can"></span>
 <hr style="clear:both;" />
 <span id="related" style="float:left; width:35%;"></span>
-<div id="info" style="float:left; width:15%;"></div>
+<span id="info" style="float:left; width:15%;">&nbsp;</span>
 <span id="related2" style="float:left;"></span>
 <div id="info2" style="clear:both; text-align:center;"></div>
 <script type="text/javascript">
