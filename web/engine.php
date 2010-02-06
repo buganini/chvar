@@ -576,7 +576,7 @@ function chvar_info2(){
 }
 
 function chvar_info(){
-	global $toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312,$togbk;
+	global $db,$toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312,$togbk;
 	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312 || !$togbk){
 		echo 'Failed';
 		return;
@@ -609,7 +609,12 @@ function chvar_info(){
 			$done[$a[$i]]=1;
 			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
  			$r[1][$j]=bsdconv($toent,f($a[$i]));
- 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($a[$i],'0').'" />';
+			$style=' style="border:solid 1px #f00;"';
+			$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'" LIMIT 1');
+			if($res->fetch_assoc()){
+				$style='';
+			}
+ 			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.$style.' />';
  			$r[3][$j]=bsdconv($tochewing,f($a[$i]));
  			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
  			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($tocp936,f($a[$i])))));
