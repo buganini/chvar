@@ -384,11 +384,45 @@ function hexval($s){
 	return strtoupper($s);
 }
 
+function magic_split($s){
+	$l=mb_strlen($s,'UTF-8');
+	$r=array();
+	$j=-1;
+	$f=-1;
+	for($i=0;$i<$l;++$i){
+		$c=mb_substr($s,$i,1,'UTF-8');
+		if(preg_replace('/[[:punct:][:space:]g-z]/si','',$c)==''){
+			if($r[$j]){
+				$j++;
+				continue;
+			}			
+		}elseif(strlen($c)>1){
+			$n=1;
+		}else{
+			$n=0;
+		}
+		if($f!=$n || $n){
+			$f=$n;
+			++$j;
+		}
+		$r[$j].=$c;
+	}
+	$ret=array();
+	foreach($r as $a){
+		if(strlen($a)==mb_strlen($a,'UTF-8')){
+			$a=hexval($a);
+		}
+		if($a){
+			$ret[]=$a;
+		}
+	}
+	return $ret;
+}
 
 function chvar_addgrp1(){
 	safeonly();
 	global $db,$tounicode;
-	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
+	$a=magic_split($_POST['text']);
 	$nid=intval($_POST['id']);
 	if(!$nid){
 		$res=$db->query('SELECT `id` FROM `group1` ORDER BY `id` DESC LIMIT 1');
@@ -418,7 +452,7 @@ function chvar_addgrp1(){
 function chvar_addgrp2(){
 	safeonly();
 	global $db;
-	$a=preg_split('/\s+/',trim(str_replace('"','',$_POST['text'])));
+	$a=magic_split($_POST['text']);
 	$nid=intval($_POST['id']);
 	if(!$nid){
 		$res=$db->query('SELECT `id` FROM `group2` ORDER BY `id` DESC LIMIT 1');
@@ -467,9 +501,7 @@ function chvar_related1(){
 	if(!$tounicode || !$toent){
 		die('Failed');
 	}
-	$s=$_REQUEST['text'];
-	$s=str_replace('"','',$s);
-	$a=preg_split('/\s+/',trim($s));
+	$a=magic_split($_REQUEST['text']);
 	$rel=array();
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
@@ -504,9 +536,7 @@ function chvar_related2(){
 	if(!$tounicode || !$toent){
 		die('Failed');
 	}
-	$s=$_REQUEST['text'];
-	$s=str_replace('"','',$s);
-	$a=preg_split('/\s+/',trim($s));
+	$a=magic_split($_REQUEST['text']);
 	$rel=array();
 	for($i=0,$j=1;$i<count($a);++$i){
 		$res=$db->query('SELECT * FROM `group2` WHERE `data`="'.$a[$i].'"');
@@ -536,9 +566,7 @@ function chvar_grp2can(){
 	if(!$tounicode || !$toent){
 		die('Failed');
 	}
-	$s=$_REQUEST['text'];
-	$s=str_replace('"','',$s);
-	$a=preg_split('/\s+/',trim($s));
+	$a=magic_split($_REQUEST['text']);
 	$rel=array();
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
@@ -592,9 +620,7 @@ function chvar_info(){
 		array('GBK')
 	);
 	$done=array();
-	$s=$_REQUEST['text'];
-	$s=str_replace('"','',$s);
-	$a=preg_split('/\s+/',trim($s));
+	$a=magic_split($_REQUEST['text']);
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
