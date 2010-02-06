@@ -555,7 +555,7 @@ function chvar_related2(){
 		$res=$db->query('SELECT * FROM `group2` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
 			$attr=get_attr(1,$r['data']);
-			echo ' <a onmouseover="showinfo2(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($attr['tw'],'0').'" />]</a>';
+			echo ' <a onmouseover="showinfo2(\''.$r['data'].'\')">{<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($attr['tw'],'0').'" />}</a>';
 		}
 		echo '<br />';
 	}
