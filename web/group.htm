@@ -70,7 +70,7 @@ function showgrp2can(){
 
 function showrelated2(){
 	s='';
-	$('input:checkbox:checked[name=can2[]]').each(function(){s+=this.value+' ';});	
+	$('input:checked[name="can2[]"]').each(function(){s+=this.value+' ';});
 	$.post('engine.php',{
 		action: 'related2',
 		text: s
