@@ -1,27 +1,27 @@
 Group editing interface:
-http://security-hole.info/chvar/group.htm
+http://cnmc.tw/~buganini/chvar/group.htm
 
 
 ===Replace $_ with provideds:===
 
 Get transliteration table:
-http://security-hole.info/chvar/engine.php?action=dump&mode=trans&for=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=trans&for=$_
 provided: cp950, cp936, gb2312, gbk
 
 Get normalization table:
-http://security-hole.info/chvar/engine.php?action=dump&mode=norml&for=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=norml&for=$_
 provided: tw, cn
 
 Get fuzzy table:
-http://security-hole.info/chvar/engine.php?action=dump&mode=fuzzy?for=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=fuzzy?for=$_
 provided: tw,cn
 
 
 Dump group data:
-http://security-hole.info/chvar/engine.php?action=dump&mode=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=$_
 provided: group1, group2
 
 Dump attribute data:
-http://security-hole.info/chvar/engine.php?action=dump&mode=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=$_
 provided: attr1, attr2
 
