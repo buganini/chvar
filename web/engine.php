@@ -25,21 +25,21 @@ if(function_exists($func)){
 	$db->autocommit(true);
 	$db->query('SET NAMES UTF8');
 	$db->query('LOCK TABLES');
-	$toent=bsdconv_create('bsdconv:utf-8,ascii');
-	$tocp950=bsdconv_create('bsdconv:cp950,ascii');
-	$tochewing=bsdconv_create('bsdconv:chewing:utf-8,ascii');
-	$tocp936=bsdconv_create('bsdconv:cp936,ascii');
-	$togb2312=bsdconv_create('bsdconv:gb2312,ascii');
-	$togbk=bsdconv_create('bsdconv:gbk,ascii');
-	$tounicode=bsdconv_create('utf-8,ascii:bsdconv');
+	$toent=new Bsdconv('bsdconv:utf-8');
+	$tocp950=new Bsdconv('bsdconv:cp950');
+	$tochewing=new Bsdconv('bsdconv:chewing:utf-8');
+	$tocp936=new Bsdconv('bsdconv:cp936');
+	$togb2312=new Bsdconv('bsdconv:gb2312');
+	$togbk=new Bsdconv('bsdconv:gbk');
+	$tounicode=new Bsdconv('utf-8:bsdconv');
 	$func();
-	bsdconv_destroy($toent);
-	bsdconv_destroy($tocp950);
-	bsdconv_destroy($tochewing);
-	bsdconv_destroy($tocp936);
-	bsdconv_destroy($togb2312);
-	bsdconv_destroy($togbk);
-	bsdconv_destroy($tounicode);
+	unset($toent);
+	unset($tocp950);
+	unset($tochewing);
+	unset($tocp936);
+	unset($togb2312);
+	unset($togbk);
+	unset($tounicode);
 	$db->query('UNLOCK TABLES');
 	$db->close();
 }
@@ -74,42 +74,42 @@ function manual_uniq($t,$d){
 		echo hl('Entity');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo bsdconv($toent,f($k));
+			echo $toent->conv(f($k));
 		}
 		echo "\n";
 
 		echo hl('Chewing');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo bsdconv($tochewing,f($k));
+			echo $tochewing->conv(f($k));
 		}
 		echo "\n";
 
 		echo hl('CP950');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo strtoupper(bin2hex(bsdconv($tocp950,f($k))));
+			echo strtoupper(bin2hex($tocp950->conv(f($k))));
 		}
 		echo "\n";
 
 		echo hl('CP936');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo strtoupper(bin2hex(bsdconv($tocp936,f($k))));
+			echo strtoupper(bin2hex($tocp936->conv(f($k))));
 		}
 		echo "\n";
 
 		echo hl('GB2312');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo strtoupper(bin2hex(bsdconv($togb2312,f($k))));
+			echo strtoupper(bin2hex($togb2312->conv(f($k))));
 		}
 		echo "\n";
 
 		echo hl('GBK');
 		foreach($d as $k=>$v){
 			echo "\t";
-			echo strtoupper(bin2hex(bsdconv($togbk,f($k))));
+			echo strtoupper(bin2hex($togbk->conv(f($k))));
 		}
 		echo "\n";
 
@@ -231,10 +231,10 @@ function chvar_buildattr1(){
 			$bmp=$cn=$tw=$cp950=$cp936=$gb2312=$gbk=$data=array();
 		}
 		if($flush) break;
-		if(bsdconv($tocp950,f($r['data']))){ $cp950[$r['data']]=1; }
-		if(bsdconv($tocp936,f($r['data']))){ $cp936[$r['data']]=1; }
-		if(bsdconv($togb2312,f($r['data']))){ $gb2312[$r['data']]=1; }
-		if(bsdconv($togbk,f($r['data']))){ $gbk[$r['data']]=1; }
+		if($tocp950->conv(f($r['data']))){ $cp950[$r['data']]=1; }
+		if($tocp936->conv(f($r['data']))){ $cp936[$r['data']]=1; }
+		if($togb2312->conv(f($r['data']))){ $gb2312[$r['data']]=1; }
+		if($togbk->conv(f($r['data']))){ $gbk[$r['data']]=1; }
 		if(strlen($r['data'])<=4){ $bmp[$r['data']]=1; }
 		$data[$r['data']]=1;
 	}
@@ -244,7 +244,7 @@ function magic_uniq($s,$d){
 	global $tocp950,$tocp936,$togb2312,$togbk;
 	$r=array();
 	foreach($d as $k=>$v){
-		if(bsdconv($tocp950,f($k)) && bsdconv($tocp936,f($k)) && bsdconv($togb2312,f($k)) && bsdconv($togbk,f($k))){
+		if($tocp950->conv(f($k)) && $tocp936->conv(f($k)) && $togb2312->conv(f($k)) && $togbk->conv(f($k))){
 			$r[]=$k;
 		}
 	}
@@ -436,7 +436,7 @@ function chvar_addgrp1(){
 	for($i=0;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
-			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=explode(',',$tounicode->conv($a[$i]));
 			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
@@ -506,7 +506,7 @@ function chvar_related1(){
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
-			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=explode(',',$tounicode->conv($a[$i]));
 			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
@@ -525,7 +525,7 @@ function chvar_related1(){
 		echo '<input type="radio" name="id" onClick="nid='.$k.'" /> <'.$k.'>';
 		$res=$db->query('SELECT * FROM `group1` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
-			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.$toent->conv(f($r['data'])).'" />]</a>';
 		}
 		echo '<br />';
 	}
@@ -571,7 +571,7 @@ function chvar_grp2can(){
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
-			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=explode(',',$tounicode->conv($a[$i]));
 			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
@@ -589,7 +589,7 @@ function chvar_grp2can(){
 		echo '<input type="checkbox" name="can2[]" checked="checked" value="'.$k.'" onClick="showrelated2()" /> <'.$k.'>';
 		$res=$db->query('SELECT * FROM `group1` WHERE `id`="'.$k.'"');
 		while($r=$res->fetch_assoc()){
-			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
+			echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.$toent->conv(f($r['data'])).'" />]</a>';
 		}
 		echo '<br />';
 	}
@@ -599,13 +599,13 @@ function chvar_info2(){
 	global $db,$toent;
 	$res=$db->query('SELECT * FROM `group1` WHERE `id`='.intval($_POST['text']));
 	while($r=$res->fetch_assoc()){
-		echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.bsdconv($toent,f($r['data'])).'" />]</a>';
+		echo ' <a onmouseover="showinfo(\''.$r['data'].'\')">[<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.ltrim($r['data'],'0').'" title="'.$toent->conv(f($r['data'])).'" />]</a>';
 	}
 }
 
 function chvar_info(){
 	global $db,$toent,$tochewing,$tocp936,$tocp950,$tounicode,$togb2312,$togbk;
-	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !togb2312 || !$togbk){
+	if(!$toent || !$tochewing || !$tocp936 || !$tocp950 || !$tounicode || !$togb2312 || !$togbk){
 		echo 'Failed';
 		return;
 	}
@@ -624,7 +624,7 @@ function chvar_info(){
 	for($i=0,$j=1;$i<count($a);++$i){
 		$tmp=hexval($a[$i]);
 		if($tmp==''){
-			$tmp=explode(',',bsdconv($tounicode,$a[$i]));
+			$tmp=explode(',',$tounicode->conv($a[$i]));
 			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$a[$i]=$tmp;
@@ -634,18 +634,18 @@ function chvar_info(){
 			}
 			$done[$a[$i]]=1;
 			$r[0][$j]='<a'.((strlen($a[$i])>4)?' class="red"':'').'>'.$a[$i].'</a>';
- 			$r[1][$j]=bsdconv($toent,f($a[$i]));
+ 			$r[1][$j]=$toent->conv(f($a[$i]));
 			$style=' style="border:solid 1px #f00;"';
 			$res=$db->query('SELECT * FROM `group1` WHERE `data`="'.$a[$i].'" LIMIT 1');
 			if($res->fetch_assoc()){
 				$style='';
 			}
  			$r[2][$j]='<img src="http://www.unicode.org/cgi-bin/refglyph?24-'.$a[$i].'"'.$style.' />';
- 			$r[3][$j]=bsdconv($tochewing,f($a[$i]));
- 			$r[4][$j]=pad(strtoupper(bin2hex(bsdconv($tocp950,f($a[$i])))));
- 			$r[5][$j]=pad(strtoupper(bin2hex(bsdconv($tocp936,f($a[$i])))));
- 			$r[6][$j]=pad(strtoupper(bin2hex(bsdconv($togb2312,f($a[$i])))));
- 			$r[7][$j]=pad(strtoupper(bin2hex(bsdconv($togbk,f($a[$i])))));
+ 			$r[3][$j]=$tochewing->conv(f($a[$i]));
+ 			$r[4][$j]=pad(strtoupper(bin2hex($tocp950->conv(f($a[$i])))));
+ 			$r[5][$j]=pad(strtoupper(bin2hex($tocp936->conv(f($a[$i])))));
+ 			$r[6][$j]=pad(strtoupper(bin2hex($togb2312->conv(f($a[$i])))));
+ 			$r[7][$j]=pad(strtoupper(bin2hex($togbk->conv(f($a[$i])))));
 			++$j;
 		}
 	}
@@ -799,7 +799,7 @@ function chvar_dump_trans(){
 	$dict=array();
 	$res=$db->query('SELECT * FROM `group1` ORDER BY `id`');
 	while($r=$res->fetch_assoc()){
-		if(bsdconv($conv,f($r['data']))){
+		if($conv->conv(f($r['data']))){
 			continue;
 		}
 		$attr=get_attr(1,$r['id']);
@@ -825,7 +825,7 @@ function chvar_dump_trans(){
 #			echo $k."\t".implode(' ',$v)."\n";
 #			continue;
 #		}
-		$ret[]=array(z($k),z(bin2hex(bsdconv($conv,f($v[0])))));
+		$ret[]=array(z($k),z(bin2hex($conv->conv(f($v[0])))));
 	}
 	usort($ret,'acmp');
 	foreach($ret as $a){
