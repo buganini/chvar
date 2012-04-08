@@ -32,6 +32,7 @@ if(function_exists($func)){
 	$togb2312=new Bsdconv('bsdconv:gb2312');
 	$togbk=new Bsdconv('bsdconv:gbk');
 	$tounicode=new Bsdconv('utf-8:bsdconv');
+	$touao250=new Bsdconv('bsdconv:_uao250');
 	$func();
 	unset($toent);
 	unset($tocp950);
@@ -40,6 +41,7 @@ if(function_exists($func)){
 	unset($togb2312);
 	unset($togbk);
 	unset($tounicode);
+	unset($touao250);
 	$db->query('UNLOCK TABLES');
 	$db->close();
 }
@@ -416,7 +418,7 @@ function magic_split($s){
 			$ret[]=$a;
 		}
 	}
-	return $ret;
+	return array_unique($ret);
 }
 
 function chvar_addgrp1(){
@@ -865,5 +867,97 @@ function chvar_dump_norml(){
 	foreach($ret as $a){
 		echo $a[0]."\t".$a[1]."\n";
 	}
+}
+
+function quote($s){
+	return '"'.$s.'"';
+}
+
+function chvar_query(){
+	global $db,$tounicode,$toent,$tochewing,$tocp950,$tocp936,$togb2312,$togbk,$touao250;
+	if(!$tounicode || !$toent){
+		die('Failed');
+	}
+	$orphans=magic_split($_REQUEST['text']);
+	foreach($orphans as &$g){
+		$tmp=hexval($g);
+		if($tmp==''){
+			$tmp=explode(',',$tounicode->conv($g));
+			$tmp=ltrim(substr($tmp[0],2),'0');
+		}
+		$g=$tmp;
+	}
+
+	$dict=array();
+	$group1=array();
+
+	$res=$db->query('SELECT * FROM `group1` WHERE `data` in ('.implode(',',array_map('quote',$orphans)).')');
+	while($r=$res->fetch_assoc()){
+		$group1[$r['id']]=array();
+		unset($orphans[array_search($r['data'],$orphans)]);
+	}
+	$orphans=array_values($orphans);
+	$orphan_group1=array_keys($group1);
+
+
+	$res=$db->query('SELECT * FROM `group2` WHERE `data` in ('.implode(',',array_map('quote',array_keys($group1))).')');
+	$group2=array();
+	while($r=$res->fetch_assoc()){
+		$group2[$r['id']]=array();
+	 	unset($orphan_group1[array_search($r['data'],$orphan_group1)]);
+	}
+	$orphan_group1=array_values($orphan_group1);
+
+	$res=$db->query('SELECT * FROM `group2` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group2))).')');
+	while($r=$res->fetch_assoc()){
+		$group1[$r['data']]=array();
+		$group2[$r['id']][]=$r['data'];
+	}
+
+	$res=$db->query('SELECT * FROM `group1` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group1))).')');
+	while($r=$res->fetch_assoc()){
+		$group1[$r['id']][]=$r['data'];
+		$dict[$r['data']]=1;
+	}
+
+	foreach($orphans as $orphan){
+		$dict[$orphan]=1;
+	}
+
+	$attr1=array();
+	$res=$db->query('SELECT * FROM `attr1` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group1))).')');
+	while($r=$res->fetch_assoc()){
+		$attr1[$r['id']]=$r;
+	}
+
+	$attr2=array();
+	if($group2){
+		$res=$db->query('SELECT * FROM `attr2` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group2))).')');
+		while($r=$res->fetch_assoc()){
+			$attr2[$r['id']]=$r;
+		}
+	}
+
+	foreach($dict as $k=>$v){
+		$dict[$k]=array(
+			'Chewing'=>$tochewing->conv(f($k)),
+			'CP950'=>strtoupper(bin2hex($tocp950->conv(f($k)))),
+			'CP936'=>strtoupper(bin2hex($tocp936->conv(f($k)))),
+			'GB2312'=>strtoupper(bin2hex($togb2312->conv(f($k)))),
+			'GBK'=>strtoupper(bin2hex($togbk->conv(f($k)))),
+			'UAO250'=>strtoupper(bin2hex($touao250->conv(f($k)))),
+		);
+	}
+
+	$dat=array(
+		'orphans'=>$orphans,
+		'orphan_group1'=>$orphan_group1,
+		'group1'=>$group1,
+		'group2'=>$group2,
+		'attr1'=>$attr1,
+		'attr2'=>$attr2,
+		'dict'=>$dict,
+	);
+	echo json_encode($dat);
 }
 ?>
