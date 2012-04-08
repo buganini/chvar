@@ -13,7 +13,7 @@ http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=norml&for=$_
 provided: tw, cn
 
 Get fuzzy table:
-http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=fuzzy?for=$_
+http://cnmc.tw/~buganini/chvar/engine.php?action=dump&mode=fuzzy&for=$_
 provided: tw,cn
 
 
