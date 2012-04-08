@@ -142,11 +142,9 @@ function query(){
 			dict=dat['dict']
 
 			$('#orphans').html('')
-			for(var k in orphans){
-				var h=$('<span></span>')
-				h.html(entitize(orphans[k]))
-				$('#orphans').append(h)
-			}
+			var h=$('<table class="data"></table>')
+			render_glyph(h,orphans)
+			$('#orphans').append(h)
 
 			$('#groups').html('')
 			for(var g1 in orphan_group1){
