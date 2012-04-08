@@ -35,6 +35,9 @@ td{
 img{
 	background: #fff;
 }
+.wanted{
+	background-color: #faa !important;
+}
 </style>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
@@ -56,7 +59,7 @@ function entitize(s){
 	return '&nbsp;'
 }
 
-function render_glyph(c,l){
+function render_glyph(c,l,w){
 	var h=$('<tr class="verbose"></tr>')
 	for(var d in l){
 		if(d==0)
@@ -64,6 +67,8 @@ function render_glyph(c,l){
 		d=l[d]
 
 		var h2=$('<td></td>')
+		if(w && wanteds.indexOf(d)!=-1)
+			h2.addClass('wanted')
 		h2.html(entitize(d))
 		h.append(h2)
 	}
@@ -76,8 +81,13 @@ function render_glyph(c,l){
 		d=l[d]
 
 		var h2=$('<td>&nbsp;</td>')
-		if(d)
-			h2.html('<img title="'+d+'" src="http://www.unicode.org/cgi-bin/refglyph?24-'+d+'" />')
+		if(d){
+			var img=$('<img title="'+d+'" src="http://www.unicode.org/cgi-bin/refglyph?24-'+d+'" />')
+			if(w && wanteds.indexOf(d)!=-1)
+				h2.addClass('wanted')
+			h2.html('')
+			h2.append(img)
+		}
 		h.append(h2)
 	}
 	c.append(h)
@@ -92,6 +102,8 @@ function render_glyph(c,l){
 			d=l[d]
 
 			var h2=$('<td>&nbsp;</td>')
+			if(w && wanteds.indexOf(d)!=-1)
+				h2.addClass('wanted')
 			if(d)
 				h2.text(dict[d][key])
 			h.append(h2)
@@ -104,7 +116,7 @@ function render_attr(e, d){
 	e.html('')
 	var h=$('<table><tr><th class="verbose">Scenario</th><th>CN</th><th>TW</th><th>CP936</th><th>CP950</th><th>GB2312</th><th>GBK</th></tr></table>')
 
-	render_glyph(h,[d['cn'],d['tw'],d['cp936'],d['cp950'],d['gb2312'],d['gbk']])
+	render_glyph(h,[d['cn'],d['tw'],d['cp936'],d['cp950'],d['gb2312'],d['gbk']],0)
 
 	e.append(h)
 }
@@ -121,7 +133,7 @@ function render(){
 function render_group1(cont, idx){
 	var h=$('<table class="data"></table>')
 
-	render_glyph(h,group1[idx])
+	render_glyph(h,group1[idx],1)
 
 	cont.append(h)
 }
@@ -133,6 +145,7 @@ function query(){
 			action: 'query',
 			text: lc
 		},function(dat){
+			wanteds=dat['wanteds']
 			orphans=dat['orphans']
 			orphan_group1=dat['orphan_group1']
 			group1=dat['group1']
@@ -143,7 +156,7 @@ function query(){
 
 			$('#orphans').html('')
 			var h=$('<table class="data"></table>')
-			render_glyph(h,orphans)
+			render_glyph(h,orphans,0)
 			$('#orphans').append(h)
 
 			$('#groups').html('')

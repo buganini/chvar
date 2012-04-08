@@ -878,15 +878,17 @@ function chvar_query(){
 	if(!$tounicode || !$toent){
 		die('Failed');
 	}
-	$orphans=magic_split($_REQUEST['text']);
-	foreach($orphans as &$g){
+	$wanteds=magic_split($_REQUEST['text']);
+	foreach($wanteds as &$g){
 		$tmp=hexval($g);
 		if($tmp==''){
 			$tmp=explode(',',$tounicode->conv($g));
 			$tmp=ltrim(substr($tmp[0],2),'0');
 		}
 		$g=$tmp;
+		unset($g);
 	}
+	$orphans=$wanteds;
 
 	$dict=array();
 	$group1=array();
@@ -950,6 +952,7 @@ function chvar_query(){
 	}
 
 	$dat=array(
+		'wanteds'=>$wanteds,
 		'orphans'=>$orphans,
 		'orphan_group1'=>$orphan_group1,
 		'group1'=>$group1,
