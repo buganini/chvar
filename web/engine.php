@@ -910,10 +910,12 @@ function chvar_query(){
 	}
 	$orphan_group1=array_values($orphan_group1);
 
-	$res=$db->query('SELECT * FROM `group2` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group2))).')');
-	while($r=$res->fetch_assoc()){
-		$group1[$r['data']]=array();
-		$group2[$r['id']][]=$r['data'];
+	if($group2){
+		$res=$db->query('SELECT * FROM `group2` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group2))).')');
+		while($r=$res->fetch_assoc()){
+			$group1[$r['data']]=array();
+			$group2[$r['id']][]=$r['data'];
+		}
 	}
 
 	$res=$db->query('SELECT * FROM `group1` WHERE `id` in ('.implode(',',array_map('quote',array_keys($group1))).')');
