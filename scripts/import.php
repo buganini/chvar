@@ -8,6 +8,7 @@ $db->autocommit(true);
 $db->query('SET NAMES UTF8');
 
 if($table=='attr1' || $table=='attr2'){
+	$db->query('DELETE FROM  `'.$table.'`');
 	$fp=fopen($file,'r');
 	$i=0;
 	while(($line=fgets($fp))!==false){
@@ -25,6 +26,7 @@ if($table=='attr1' || $table=='attr2'){
 	}
 
 }elseif($table=='group1' || $table=='group2'){
+	$db->query('DELETE FROM  `'.$table.'`');
 	$fp=fopen($file,'r');
 	while(($line=fgets($fp))!==false){
 		$a=explode("\t",$line);
@@ -34,6 +36,7 @@ if($table=='attr1' || $table=='attr2'){
 		$data=trim($a[1]);
 		$db->query('INSERT INTO `'.$table.'` (`id`,`data`) VALUES ("'.$id.'","'.$data.'")');
 	}
+	fclose($fp);
 }
 
 $db->close();

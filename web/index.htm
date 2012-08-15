@@ -1,0 +1,225 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Chinese Variants Database </title>
+<style type="text/css">
+.hl{
+	border: solid 1px #f00;
+}
+.red{
+	color:#f00;
+}
+span{
+	margin: 1em;
+}
+#orphans{
+	padding: 0.5em;
+	background: #fb0;
+}
+.group2{
+	padding: 0.5em;
+	background: #abf;
+	display:block;
+}
+.group1{
+	margin-left: 3em;
+	padding: 0.5em;
+	background: #dfd;
+	display:block;
+}
+.data{
+	margin-left: 3em;
+}
+td{
+	text-align:center;
+}
+img{
+	background: #fff;
+}
+.wanted{
+	background-color: #faa !important;
+}
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript">
+function doKeyDown(ev){
+	if(navigator.userAgent.match("Gecko")){
+		kc=ev.which;
+	}else{
+		kc=ev.keyCode;
+	}
+	if (ev.ctrlKey && kc == 13){
+		dosubmit();
+		return false;
+	}
+} 
+
+function entitize(s){
+	if(s)
+		return '&#x'+s+';'
+	return '&nbsp;'
+}
+
+function render_glyph(c,l,w){
+	var h=$('<tr class="verbose"></tr>')
+	for(var d in l){
+		if(d==0)
+			h.append($('<th>Entity</th>'))
+		d=l[d]
+
+		var h2=$('<td></td>')
+		if(w && wanteds.indexOf(d)!=-1)
+			h2.addClass('wanted')
+		h2.html(entitize(d))
+		h.append(h2)
+	}
+	c.append(h)
+
+	var h=$('<tr></tr>')
+	for(var d in l){
+		if(d==0)
+			h.append($('<th class="verbose">Image</th>'))
+		d=l[d]
+
+		var h2=$('<td>&nbsp;</td>')
+		if(d){
+			var img=$('<img title="'+d+'" src="http://www.unicode.org/cgi-bin/refglyph?24-'+d+'" />')
+			if(w && wanteds.indexOf(d)!=-1)
+				h2.addClass('wanted')
+			h2.html('')
+			h2.append(img)
+		}
+		h.append(h2)
+	}
+	c.append(h)
+
+	var keys=['Chewing','CP936','CP950','GB2312','GBK','UAO250']
+	for(var key in keys){
+		key=keys[key]
+		var h=$('<tr class="verbose"></tr>')
+		for(var d in l){
+			if(d==0)
+				h.append($('<th></th>').text(key))
+			d=l[d]
+
+			var h2=$('<td>&nbsp;</td>')
+			if(w && wanteds.indexOf(d)!=-1)
+				h2.addClass('wanted')
+			if(d)
+				h2.text(dict[d][key])
+			h.append(h2)
+		}
+		c.append(h)
+	}
+}
+
+function render_attr(e, d){
+	e.html('')
+	var h=$('<table><tr><th class="verbose">Scenario</th><th>CN</th><th>TW</th><th>CP936</th><th>CP950</th><th>GB2312</th><th>GBK</th></tr></table>')
+
+	render_glyph(h,[d['cn'],d['tw'],d['cp936'],d['cp950'],d['gb2312'],d['gbk']],0)
+
+	e.append(h)
+}
+
+function render(){
+	$('.attr1').each(function(i){
+		render_attr($(this), attr1[$(this).attr('data')])
+	})
+	$('.attr2').each(function(i){
+		render_attr($(this), attr2[$(this).attr('data')])
+	})
+}
+
+function render_group1(cont, idx){
+	var h=$('<table class="data"></table>')
+
+	render_glyph(h,group1[idx],1)
+
+	cont.append(h)
+}
+
+function query(){
+	if(lc!=$('#text').val()){
+		lc=$('#text').val();
+		html=$.post('engine.php',{
+			action: 'query',
+			text: lc
+		},function(dat){
+			wanteds=dat['wanteds']
+			orphans=dat['orphans']
+			orphan_group1=dat['orphan_group1']
+			group1=dat['group1']
+			group2=dat['group2']
+			attr1=dat['attr1']
+			attr2=dat['attr2']
+			dict=dat['dict']
+
+			$('#orphans').html('')
+			var h=$('<table class="data"></table>')
+			render_glyph(h,orphans,0)
+			$('#orphans').append(h)
+
+			$('#groups').html('')
+			for(var g1 in orphan_group1){
+				g1=orphan_group1[g1]
+				var h=$('<span class="group2"></span>')
+				var h2=$('<span class="group1"></span>')
+
+				var h3=$('<span class="attr1"></span>')
+				h3.attr('data',g1)
+				h2.append(h3)
+
+				render_group1(h2, g1)
+				h.append(h2)
+				$('#groups').append(h)
+			}
+
+			for(var g2 in group2){
+				var h=$('<span class="group2"></span>')
+				var h2=$('<span class="attr2"></span>')
+				h2.attr('data',g2)
+				h.append(h2)
+				
+				for(var g1 in group2[g2]){
+					g1=group2[g2][g1]
+					var h3=$('<span class="group1"></span>')
+
+					var h4=$('<span class="attr1"></span>')
+					h4.attr('data',g1)
+					h3.append(h4)
+
+					render_group1(h3, g1)
+					h.append(h3)
+				}
+
+				$('#groups').append(h)
+			}
+
+			render()
+		},"json");
+	}
+}
+
+function toggleVerbose(t){
+	if($(t).is(':checked')){
+		$('.verbose').css('display','')
+	}else{
+		$('.verbose').css('display','none')
+	}
+}
+</script>
+</head>
+<body onkeydown="doKeyDown(event)" onFocus="document.getElementById('text').focus()">
+<textarea id="text" onKeyup="query();"></textarea><input type="checkbox" id="verbose" checked="checked" onClick="toggleVerbose(this)" /><label for="verbose">Verbose</label>
+<div id="stage">
+<div id="orphans"></div>
+<div id="groups"></div>
+</div>
+<script type="text/javascript">
+	lc='';
+	nid=0;
+	nid2=0;
+</script>
+</body>
+</html>
