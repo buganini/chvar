@@ -752,12 +752,16 @@ function chvar_dump_fuzzy(){
 		$i=0;
 		while($r2=$res2->fetch_assoc()){
 			$attr=get_attr(2,$r2['id']);
+			if(empty($attr[$for]))
+				continue;
 			$dict[$r['data']][$attr[$for]]=1;
 			++$acc[$attr[$for]];
 			++$i;
 		}
 		if($i==0){
 			$attr=get_attr(1,$r['id']);
+			if(empty($attr[$for]))
+				continue;
 			$dict[$r['data']][$attr[$for]]=1;
 			++$acc[$attr[$for]];
 		}
@@ -775,6 +779,8 @@ function chvar_dump_fuzzy(){
 	}
 	usort($ret,'acmp');
 	foreach($ret as $a){
+		if($a[0]==$a[1])
+			continue;
 		echo $a[0]."\t".$a[1]."\n";		
 	}
 }
