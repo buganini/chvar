@@ -94,6 +94,8 @@ class Chvar():
 			v = a[cat]
 			print("  * {0}: {1} ({2})".format(cat, c.conv(p01(v)), v))
 
+		print("")
+
 		print("####Member")
 		d = self.layers[0][0].data.get(g)
 		for e in d:
