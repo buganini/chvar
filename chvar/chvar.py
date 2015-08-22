@@ -71,31 +71,32 @@ class Chvar():
 	def _print_group2(self, g2):
 		c = Bsdconv("bsdconv:utf-8")
 
-		print("======Layer 2 Group {0}======".format(g2))
+		print("#Layer 2 Group {0}\n".format(g2))
 
-		print("Member:")
-		for g in self.layers[1][0].data.get(g2):
-			self._print_group1(g)
-
-		print("Attributes:")
+		print("##Attributes")
 		a = self.layers[1][1].get(g2)
 		for cat in a:
 			v = a[cat]
-			print("\t{0}: {1} ({2})".format(cat, c.conv(p01(v)), v))
+			print("* {0}: {1} ({2})".format(cat, c.conv(p01(v)), v))
+
+		print("##Member")
+		for g in self.layers[1][0].data.get(g2):
+			self._print_group1(g)
 
 	def _print_group1(self, g):
 		c = Bsdconv("bsdconv:utf-8")
 
-		print("\t======Layer 1 Group {0}======".format(g))
+		print("###Layer 1 Group {0}\n".format(g))
 
-		print("\tMember:")
-		d = self.layers[0][0].data.get(g)
-		for e in d:
-			print("\t\t{0} ({1})".format(c.conv(p01(e)), e))
-
-		print("\tAttributes:")
+		print("####Attributes")
 		a = self.layers[0][1].get(g)
 		for cat in a:
 			v = a[cat]
-			print("\t\t{0}: {1} ({2})".format(cat, c.conv(p01(v)), v))
+			print("  * {0}: {1} ({2})".format(cat, c.conv(p01(v)), v))
+
+		print("####Member")
+		d = self.layers[0][0].data.get(g)
+		for e in d:
+			print("  * {0} ({1})".format(c.conv(p01(e)), e))
+
 		print("")
