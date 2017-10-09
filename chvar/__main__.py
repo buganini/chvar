@@ -12,6 +12,9 @@ def usage():
 	print("python chvar . query {試,9644}\n")
 	sys.exit()
 
+if len(sys.argv) < 4:
+	usage()
+
 attr1 = Attr(os.path.join(sys.argv[1], "attr1.txt"))
 group1 = Group(os.path.join(sys.argv[1], "group1.txt"))
 
@@ -23,8 +26,6 @@ chvar = Chvar((group1, attr1), (group2, attr2))
 argv = {"transliterate":("CP950","CP936","GB2312","GBK"), "normalize":("TW","CN"), "fuzzy":("TW","CN")}
 
 if sys.argv[2] == "query":
-	if len(sys.argv) < 4:
-		usage()
 	chvar.query(sys.argv[3])
 else:
 	if sys.argv[2] not in ("transliterate", "normalize", "fuzzy"):
