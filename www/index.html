@@ -48,11 +48,13 @@
         <table>
           <tr><th>CGroup</th><td>{{selectedCG}}</td></tr>
           <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'CN'))" /><br />{{getAttr1(selectedCG, "CN")}}</td></tr>
+          <tr><th>JP</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'JP'))" /><br />{{getAttr1(selectedCG, "JP")}}</td></tr>
           <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'TW'))" /><br />{{getAttr1(selectedCG, "TW")}}</td></tr>
         </table>
         <table v-if="hasAttr2(selectedKG)">
           <tr><th>KGroup</th><td>{{selectedKG}}</td></tr>
           <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'CN'))" /><br />{{getAttr2(selectedKG, "CN")}}</td></tr>
+          <tr><th>JP</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'JP'))" /><br />{{getAttr2(selectedKG, "JP")}}</td></tr>
           <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'TW'))" /><br />{{getAttr2(selectedKG, "TW")}}</td></tr>
         </table>
       </div>
