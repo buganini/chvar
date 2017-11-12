@@ -154,7 +154,7 @@
       getGlyph: function(cp){
         if(!cp)
           return "";
-        return "http://www.unicode.org/cgi-bin/refglyph?32-"+cp;
+        return "http://glyphwiki.org/glyph/u"+cp.toLowerCase()+".50px.png";
       },
       hasAttr2: function(g){
         if(!this.data["attr2"])
