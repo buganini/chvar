@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+  <style type="text/css">
+    .hbox {
+      display:flex;
+      flex-direction:row;
+    }
+    .query {
+      margin: .5em;
+    }
+    .attrs {
+      flex-direction:column;
+    }
+    .groups {
+      flex-direction:column;
+      flex-grow: 1;
+    }
+    .kg {
+      border: 1px black dashed;
+      padding: .5em;
+      margin: .5em;
+    }
+    .cg {
+      border: 1px black solid;
+      padding: .5em;
+      margin: .5em;
+    }
+    .clickable {
+      cursor: pointer;
+      background: yellow;
+    }
+    .glyph {
+      border: 1px dotted gray;
+      display: inline-block;
+      text-align: center;
+      margin: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="hbox">
+      <div class="attrs">
+        <table>
+          <tr><th>CGroup</th><td>{{selectedCG}}</td></tr>
+          <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'CN'))" /><br />{{getAttr1(selectedCG, "CN")}}</td></tr>
+          <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'TW'))" /><br />{{getAttr1(selectedCG, "TW")}}</td></tr>
+        </table>
+        <table v-if="hasAttr2(selectedKG)">
+          <tr><th>KGroup</th><td>{{selectedKG}}</td></tr>
+          <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'CN'))" /><br />{{getAttr2(selectedKG, "CN")}}</td></tr>
+          <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'TW'))" /><br />{{getAttr2(selectedKG, "TW")}}</td></tr>
+        </table>
+      </div>
+      <div class="groups">
+        <div class="query">
+          <input type="text" v-model="query" /><button @click="doQuery()">Query</button>
+        </div>
+        <div v-for="kgv,kgi in data.data" class="kg">
+          <span>#{{kgi}}</span><br />
+          <div v-for="cgv,cgi in kgv" class="cg">
+            <span class="clickable" @click="select(kgi, cgi)">#{{cgi}}</span><br />
+            <span class="glyph" v-for="v in cgv">
+              <img v-bind:src="getGlyph(v)" />
+              <br />
+              {{v}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      data: {},
+      query: "",
+      selectedCG: "",
+      selectedKG: "",
+    },
+    methods: {
+      doQuery: function(){
+        $.get(
+          "http://localhost:8080",
+          {
+            "q": this.query,
+            "reload": "1"
+          },
+          function(data){
+            app.data = data;
+          },
+          "json"
+        );
+      },
+      select: function(kg, cg){
+        this.selectedKG = kg;
+        this.selectedCG = cg;
+      },
+      getAttr1: function(g, col){
+        if(!g || !this.data["attr1"][g])
+          return "";
+        return this.data["attr1"][g][col];
+      },
+      getAttr2: function(g, col){
+        if(!g || !this.data["attr2"][g])
+          return "";
+        return this.data["attr2"][g][col];
+      },
+      getGlyph: function(cp){
+        if(!cp)
+          return "";
+        return "http://www.unicode.org/cgi-bin/refglyph?32-"+cp;
+      },
+      hasAttr2: function(g){
+        if(!this.data["attr2"])
+          return false;
+        return !!this.data["attr2"][g];
+      }
+    }
+  });
+</script>
+</body>
+</html>
