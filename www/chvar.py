@@ -91,7 +91,7 @@ class Chvar():
                 else:
                     data["g1/{}".format(g1)] = {g1:self.group1[g1]}
                     attr1[g1] = self.attr1[g1]
-        return {"data":data, "attr1":attr1, "attr2":attr2}
+        return {"query":qs, "data":data, "attr1":attr1, "attr2":attr2}
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):

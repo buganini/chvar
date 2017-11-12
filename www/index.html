@@ -60,6 +60,13 @@
         <div class="query">
           <input type="text" v-model="query" /><button @click="doQuery()">Query</button>
         </div>
+        <div>
+          <span class="glyph" v-for="v in data.query">
+            <img v-bind:src="getGlyph(v)" />
+            <br />
+            {{v}}
+          </span>
+        </div>
         <div v-for="kgv,kgi in data.data" class="kg">
           <span>#{{kgi}}</span><br />
           <div v-for="cgv,cgi in kgv" class="cg">
