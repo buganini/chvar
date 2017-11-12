@@ -4,6 +4,8 @@ import json
 import re
 from aiohttp import web
 
+attrs = ("CN","JP","TW","CP950","CP936","GB2312","GBK")
+
 class Chvar():
     def __init__(self, datadir):
         self.datadir = datadir
@@ -73,8 +75,6 @@ class Chvar():
         else:
             qs = ["{:X}".format(ord(x)) for x in q]
         data = {}
-        attr1 = {}
-        attr2 = {}
         tokens = []
         for cp in qs:
             token = [cp, False]
@@ -84,25 +84,57 @@ class Chvar():
             for g1 in self.g1map[cp]:
                 if g1 in self.g2map:
                     for g2 in self.g2map[g1]:
-                        if g2 in self.attr2:
-                            attr2[g2] = self.attr2[g2]
                         if g2 in self.group2:
-                            data[g2] = {}
+                            data[g2] =  {"virtual":False, "children": {}}
                             for g1 in self.group2[g2]:
-                                data[g2][g1] = self.group1[g1]
+                                data[g2]["children"][g1] = self.group1[g1]
                                 for c in self.group1[g1]:
                                     if c==cp:
                                         token[1] = True
-                                if g1 in self.attr1:
-                                    attr1[g1] = self.attr1[g1]
                 else:
-                    data["g1/{}".format(g1)] = {g1:self.group1[g1]}
+                    data["g1/{}".format(g1)] = {"virtual":True, "children":{g1:self.group1[g1]}}
                     for c in self.group1[g1]:
                         if c==cp:
                             token[1] = True
-                    if g1 in self.attr1:
-                        attr1[g1] = self.attr1[g1]
-        return {"query":tokens, "data":data, "attr1":attr1, "attr2":attr2}
+        for g2 in data:
+            g2glyph = []
+            for g1 in data[g2]["children"]:
+                glyph = data[g2]["children"][g1]
+                g2glyph.extend(glyph)
+                d = [{"codepoint":x, "virtual":False} for x in glyph]
+                if g1 in self.attr1:
+                    for a in attrs:
+                        v = self.attr1[g1].get(a)
+                        if not v or v in glyph:
+                            continue
+                        d.append({"codepoint":v, "virtual":True})
+                        glyph.append(v)
+                d.sort(key=lambda x:(x["virtual"], len(x["codepoint"]), x["codepoint"]))
+                for g in d:
+                    g["attr"] = {}
+                    for a in attrs:
+                        v = self.attr1[g1].get(a)
+                        g["attr"][a] = v == g["codepoint"]
+                data[g2]["children"][g1] = d
+            if data[g2]["virtual"]:
+                continue
+            g2glyph = list(set(g2glyph))
+            d = [{"codepoint":x, "virtual":False} for x in g2glyph]
+            if g2 in self.attr2:
+                for a in attrs:
+                    v = self.attr2[g2].get(a)
+                    if not v or v in g2glyph:
+                        continue
+                    d.append({"codepoint":v, "virtual":True})
+                    g2glyph.append(v)
+            d.sort(key=lambda x:(x["virtual"], len(x["codepoint"]), x["codepoint"]))
+            for g in d:
+                g["attr"] = {}
+                for a in attrs:
+                    v = self.attr2[g2].get(a)
+                    g["attr"][a] = v == g["codepoint"]
+            data[g2]["glyph"] = d
+        return {"query":tokens, "data":data}
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):

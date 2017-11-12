@@ -5,19 +5,8 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
   <style type="text/css">
-    .hbox {
-      display:flex;
-      flex-direction:row;
-    }
     .query {
       margin: .5em;
-    }
-    .attrs {
-      flex-direction:column;
-    }
-    .groups {
-      flex-direction:column;
-      flex-grow: 1;
     }
     .kg {
       border: 1px black dashed;
@@ -29,10 +18,6 @@
       padding: .5em;
       margin: .5em;
     }
-    .clickable {
-      cursor: pointer;
-      background: yellow;
-    }
     .glyph {
       border: 1px dotted gray;
       display: inline-block;
@@ -42,49 +27,85 @@
     .warn {
       background: #fdd;
     }
+    table {
+      border-collapse: collapse;;
+    }
+    th, td {
+      border: 1px solid gray;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div id="app">
-    <div class="hbox">
-      <div class="attrs">
-        <table>
-          <tr><th>CGroup</th><td>{{selectedCG}}</td></tr>
-          <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'CN'))" /><br />{{getAttr1(selectedCG, "CN")}}</td></tr>
-          <tr><th>JP</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'JP'))" /><br />{{getAttr1(selectedCG, "JP")}}</td></tr>
-          <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr1(selectedCG, 'TW'))" /><br />{{getAttr1(selectedCG, "TW")}}</td></tr>
-        </table>
-        <table v-if="hasAttr2(selectedKG)">
-          <tr><th>KGroup</th><td>{{selectedKG}}</td></tr>
-          <tr><th>CN</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'CN'))" /><br />{{getAttr2(selectedKG, "CN")}}</td></tr>
-          <tr><th>JP</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'JP'))" /><br />{{getAttr2(selectedKG, "JP")}}</td></tr>
-          <tr><th>TW</th><td><img v-bind:src="getGlyph(getAttr2(selectedKG, 'TW'))" /><br />{{getAttr2(selectedKG, "TW")}}</td></tr>
-        </table>
-      </div>
-      <div class="groups">
-        <div class="query">
-          <input type="text" v-model="query" id="query" /><button @click="doQuery()">Query</button>
-        </div>
-        <div>
-          <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
-            <img v-bind:src="getGlyph(v[0])" />
-            <br />
-            {{v[0]}}
-          </span>
-        </div>
-        <div v-for="kgv,kgi in data.data" class="kg">
-          <span>#{{kgi}}</span><br />
-          <div v-for="cgv,cgi in kgv" class="cg">
-            <span class="clickable" @click="select(kgi, cgi)">#{{cgi}}</span>
-            <span v-if="selected(kgi, cgi)">★</span>
-            <br />
-            <span class="glyph" v-for="v in cgv">
-              <img v-bind:src="getGlyph(v)" />
+    <div class="query">
+      <input type="text" v-model="query" id="query" /><button @click="doQuery()">Query</button>
+    </div>
+    <div>
+      <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
+        <img v-bind:src="getGlyph(v[0])" />
+        <br />
+        {{v[0]}}
+      </span>
+    </div>
+    <div v-for="kgv,kgi in data.data" class="kg">
+      <span>Compatible Group #{{kgi}}</span><br />
+      <table v-if="!kgv['virtual']">
+        <tr>
+          <th>Glyph</th>
+          <td v-for="v in kgv['glyph']">
+            <span v-if="!v['virtual']">
+              <img v-bind:src="getGlyph(v['codepoint'])" />
               <br />
-              {{v}}
+              {{v['codepoint']}}
             </span>
-          </div>
-        </div>
+          </td>
+        </tr>
+        <tr v-for="attr in attrs">
+          <th>{{attr}}</th>
+          <td v-for="v in kgv['glyph']">
+            <span v-if="v['attr'][attr]">
+              <template v-if="v['virtual']">
+                <img v-bind:src="getGlyph(v['codepoint'])" />
+                <br />
+                {{v['codepoint']}}
+              </template>
+              <template v-if="!v['virtual']">
+                *
+              </template>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <div v-for="cgv,cgi in kgv['children']" class="cg">
+        <span>Canonical Group #{{cgi}}</span><br />
+        <table>
+          <tr>
+            <th>Glyph</th>
+            <td v-for="v in cgv">
+              <template v-if="!v['virtual']">
+                <img v-bind:src="getGlyph(v['codepoint'])" />
+                <br />
+                {{v['codepoint']}}
+              </template>
+            </td>
+          </tr>
+          <tr v-for="attr in attrs">
+            <th>{{attr}}</th>
+            <td v-for="v in cgv">
+              <template v-if="v['attr'][attr]">
+                <template v-if="v['virtual']">
+                  <img v-bind:src="getGlyph(v['codepoint'])" />
+                  <br />
+                  {{v['codepoint']}}
+                </template>
+                <template v-if="!v['virtual']">
+                  *
+                </template>
+              </template>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
@@ -92,10 +113,9 @@
   var app = new Vue({
     el: '#app',
     data: {
+      attrs: ["CN", "JP", "TW", "CP950", "CP936", "GB2312", "GBK"],
       data: {},
       query: "",
-      selectedCG: "",
-      selectedKG: "",
     },
     mounted: function(){
       var checkEnter = function(event) {
@@ -116,23 +136,10 @@
             "reload": "1"
           },
           function(data){
-            app.selectedCG = "";
-            app.selectedKG = "";
             app.data = data;
           },
           "json"
         );
-      },
-      selected: function(kg, cg){
-        if(!this.selectedKG || !this.selectedCG){
-          this.selectedKG = kg;
-          this.selectedCG = cg;
-        }
-        return this.selectedKG==kg && this.selectedCG==cg;
-      },
-      select: function(kg, cg){
-        this.selectedKG = kg;
-        this.selectedCG = cg;
       },
       getAttr1: function(g, col){
         if(!g || !this.data["attr1"][g])
