@@ -75,7 +75,10 @@ class Chvar():
         data = {}
         attr1 = {}
         attr2 = {}
+        tokens = []
         for cp in qs:
+            token = [cp, False]
+            tokens.append(token)
             if not cp in self.g1map:
                 continue
             for g1 in self.g1map[cp]:
@@ -87,13 +90,19 @@ class Chvar():
                             data[g2] = {}
                             for g1 in self.group2[g2]:
                                 data[g2][g1] = self.group1[g1]
+                                for c in self.group1[g1]:
+                                    if c==cp:
+                                        token[1] = True
                                 if g1 in self.attr1:
                                     attr1[g1] = self.attr1[g1]
                 else:
                     data["g1/{}".format(g1)] = {g1:self.group1[g1]}
+                    for c in self.group1[g1]:
+                        if c==cp:
+                            token[1] = True
                     if g1 in self.attr1:
                         attr1[g1] = self.attr1[g1]
-        return {"query":qs, "data":data, "attr1":attr1, "attr2":attr2}
+        return {"query":tokens, "data":data, "attr1":attr1, "attr2":attr2}
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):

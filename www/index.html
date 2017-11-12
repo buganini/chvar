@@ -39,6 +39,9 @@
       text-align: center;
       margin: 0.1em;
     }
+    .warn {
+      background: #fdd;
+    }
   </style>
 </head>
 <body>
@@ -63,10 +66,10 @@
           <input type="text" v-model="query" id="query" /><button @click="doQuery()">Query</button>
         </div>
         <div>
-          <span class="glyph" v-for="v in data.query">
-            <img v-bind:src="getGlyph(v)" />
+          <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
+            <img v-bind:src="getGlyph(v[0])" />
             <br />
-            {{v}}
+            {{v[0]}}
           </span>
         </div>
         <div v-for="kgv,kgi in data.data" class="kg">
