@@ -95,12 +95,14 @@
       selectedKG: "",
     },
     mounted: function(){
-      $('#query').keypress(function(event) {
+      var checkEnter = function(event) {
           if (event.keyCode == 13 || event.which == 13) {
               app.doQuery();
               event.preventDefault();
           }
-      });
+      };
+      $('#query').keypress(checkEnter).focus();
+      $('html').keypress(checkEnter);
     },
     methods: {
       doQuery: function(){
