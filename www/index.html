@@ -60,7 +60,7 @@
       </div>
       <div class="groups">
         <div class="query">
-          <input type="text" v-model="query" /><button @click="doQuery()">Query</button>
+          <input type="text" v-model="query" id="query" /><button @click="doQuery()">Query</button>
         </div>
         <div>
           <span class="glyph" v-for="v in data.query">
@@ -91,6 +91,14 @@
       query: "",
       selectedCG: "",
       selectedKG: "",
+    },
+    mounted: function(){
+      $('#query').keypress(function(event) {
+          if (event.keyCode == 13 || event.which == 13) {
+              app.doQuery();
+              event.preventDefault();
+          }
+      });
     },
     methods: {
       doQuery: function(){
