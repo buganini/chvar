@@ -146,7 +146,7 @@ else:
             cv.reload()
         q = request.GET.get('q')
         ret = cv.query(q)
-        print(json.dumps(ret, indent=4))
+        #print(json.dumps(ret, indent=4))
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
     app = web.Application()
