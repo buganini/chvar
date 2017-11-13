@@ -136,7 +136,7 @@
       $('html').keyup(checkKey);
       var hash = document.location.hash.substring(1);
       if(hash){
-        this.query = hash;
+        this.query = decodeURIComponent(hash);
         this._doQuery();
       }
     },
