@@ -43,7 +43,7 @@
     </div>
     <div>
       <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
-        <img v-bind:src="getGlyph(v[0])" />
+        <img v-bind:src="getGlyph(v[0])" v-bind:title="getChar(v[0])" />
         <br />
         {{v[0]}}
       </span>
@@ -55,7 +55,7 @@
           <th>Glyph</th>
           <td v-for="v in kgv['glyph']">
             <span v-if="!v['virtual']">
-              <img v-bind:src="getGlyph(v['codepoint'])" />
+              <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" />
               <br />
               {{v['codepoint']}}
             </span>
@@ -66,7 +66,7 @@
           <td v-for="v in kgv['glyph']">
             <span v-if="v['attr'][attr]">
               <template v-if="v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" />
+                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" />
                 <br />
                 {{v['codepoint']}}
               </template>
@@ -84,7 +84,7 @@
             <th>Glyph</th>
             <td v-for="v in cgv">
               <template v-if="!v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" />
+                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" />
                 <br />
                 {{v['codepoint']}}
               </template>
@@ -95,7 +95,7 @@
             <td v-for="v in cgv">
               <template v-if="v['attr'][attr]">
                 <template v-if="v['virtual']">
-                  <img v-bind:src="getGlyph(v['codepoint'])" />
+                  <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" />
                   <br />
                   {{v['codepoint']}}
                 </template>
@@ -169,6 +169,9 @@
         if(!cp)
           return "";
         return "http://glyphwiki.org/glyph/u"+cp.toLowerCase()+".50px.png";
+      },
+      getChar: function(cp){
+        return String.fromCodePoint(parseInt(cp, 16));
       },
       hasAttr2: function(g){
         if(!this.data["attr2"])
