@@ -120,7 +120,6 @@
     mounted: function(){
       var $query = $("#query");
       var checkKey = function(event) {
-        console.log(event.keyCode, event.which);
           if (event.keyCode == 13 || event.which == 13) {
               app.doQuery();
               event.preventDefault();
@@ -132,9 +131,18 @@
       };
       $query.keyup(checkKey).focus();
       $('html').keyup(checkKey);
+      var hash = document.location.hash.substring(1);
+      if(hash){
+        this.query = hash;
+        this._doQuery();
+      }
     },
     methods: {
       doQuery: function(){
+        document.location.hash = this.query;
+        this._doQuery();
+      },
+      _doQuery: function(){
         $.get(
           "/api",
           {
