@@ -118,14 +118,20 @@
       query: "",
     },
     mounted: function(){
-      var checkEnter = function(event) {
+      var $query = $("#query");
+      var checkKey = function(event) {
+        console.log(event.keyCode, event.which);
           if (event.keyCode == 13 || event.which == 13) {
               app.doQuery();
               event.preventDefault();
+          } else if (event.keyCode == 27 || event.which == 27){
+            app.query = "";
+            $query.focus();
+            event.preventDefault();
           }
       };
-      $('#query').keypress(checkEnter).focus();
-      $('html').keypress(checkEnter);
+      $query.keyup(checkKey).focus();
+      $('html').keyup(checkKey);
     },
     methods: {
       doQuery: function(){
