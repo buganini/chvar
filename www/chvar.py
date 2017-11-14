@@ -4,14 +4,14 @@ import json
 import re
 from aiohttp import web
 
-attrs = ("CN","JP","TW","CP950","CP936","GB2312","GBK")
+attrs = ("TW","CN","JP","CP950","CP936","GB2312","GBK")
 
 class Chvar():
     def __init__(self, datadir):
         self.datadir = datadir
-        self.reload()
+        self.checkout()
 
-    def reload(self):
+    def checkout(self):
         self.group1 = {}
         self.group2 = {}
         self.attr1 = {}
@@ -135,6 +135,45 @@ class Chvar():
                     g["attr"][a] = v == g["codepoint"]
             data[g2]["glyph"] = d
         return {"query":tokens, "data":data}
+    def commit(self):
+        with open(os.path.join(self.datadir, "group1.txt"), "w") as f:
+            groups = list(self.group1.keys())
+            groups.sort(key=lambda x: int(x))
+            for g in groups:
+                vs = self.group1[g]
+                vs.sort(key=lambda x: int(x, 16))
+                for v in vs:
+                    f.write("{}\t{}\n".format(g, v))
+        with open(os.path.join(self.datadir, "group2.txt"), "w") as f:
+            groups = list(self.group2.keys())
+            groups.sort(key=lambda x: int(x))
+            for g in groups:
+                vs = self.group2[g]
+                vs.sort(key=lambda x: int(x))
+                for v in vs:
+                    f.write("{}\t{}\n".format(g, v))
+        with open(os.path.join(self.datadir, "attr1.txt"), "w") as f:
+            f.write("ID")
+            for attr in attrs:
+                f.write("\t{}".format(attr))
+            f.write("\n")
+            groups = list(self.attr1.keys())
+            groups.sort(key=lambda x: int(x))
+            for g in groups:
+                attr = self.attr1[g]
+                f.write("\t".join([g]+[attr.get(a, "") for a in attrs]).strip())
+                f.write("\n")
+        with open(os.path.join(self.datadir, "attr2.txt"), "w") as f:
+            f.write("ID")
+            for attr in attrs:
+                f.write("\t{}".format(attr))
+            f.write("\n")
+            groups = list(self.attr2.keys())
+            groups.sort(key=lambda x: int(x))
+            for g in groups:
+                attr = self.attr2[g]
+                f.write("\t".join([g]+[attr.get(a, "") for a in attrs]).strip())
+                f.write("\n")
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
@@ -143,7 +182,7 @@ else:
     async def handle(request):
         if 'reload' in request.GET:
             print("Reload")
-            cv.reload()
+            cv.checkout()
         q = request.GET.get('q')
         ret = cv.query(q)
         #print(json.dumps(ret, indent=4))
