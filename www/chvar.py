@@ -113,7 +113,7 @@ class Chvar():
                 for g in d:
                     g["attr"] = {}
                     for a in attrs:
-                        v = self.attr1[g1].get(a)
+                        v = self.attr1.get(g1, {}).get(a)
                         g["attr"][a] = v == g["codepoint"]
                 data[g2]["children"][g1] = d
             if data[g2]["virtual"]:
@@ -197,6 +197,8 @@ else:
         attr = data["attr"]
         codepoint = data["codepoint"]
         ds = {"1":cv.attr1, "2":cv.attr2}[level]
+        if not group in ds:
+            ds[group] = {}
         ds[group][attr] = codepoint
         cv.commit()
         ret = cv.query(query)
