@@ -23,7 +23,6 @@
       display: inline-block;
       text-align: center;
       margin: 0.1em;
-      cursor: pointer;
     }
     .warn {
       background: #fdd;
@@ -44,9 +43,9 @@
     </div>
     <div>
       <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
-        <img v-bind:src="getGlyph(v[0])" v-bind:title="getChar(v[0])" @click="copy(v[0])" />
+        <img v-bind:src="getGlyph(v[0])" v-bind:title="getChar(v[0])" @click="copy(getChar(v[0]))" />
         <br />
-        {{v[0]}}
+        <span @click="copy(v[0])">{{v[0]}}</span>
       </span>
     </div>
     <div v-for="kgv,kgi in data.data" class="kg">
@@ -56,9 +55,9 @@
           <th>Glyph</th>
           <td v-for="v in kgv['glyph']">
             <span v-if="!v['virtual']">
-              <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(v['codepoint'])" />
+              <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
               <br />
-              {{v['codepoint']}}
+              <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
             </span>
           </td>
         </tr>
@@ -67,9 +66,9 @@
           <td v-for="v in kgv['glyph']">
             <span v-if="v['attr'][attr]">
               <template v-if="v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(v['codepoint'])" />
+                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                 <br />
-                {{v['codepoint']}}
+                <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
               </template>
               <template v-if="!v['virtual']">
                 *
@@ -85,9 +84,9 @@
             <th>Glyph</th>
             <td v-for="v in cgv">
               <template v-if="!v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(v['codepoint'])" />
+                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                 <br />
-                {{v['codepoint']}}
+                <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
               </template>
             </td>
           </tr>
@@ -96,9 +95,9 @@
             <td v-for="v in cgv">
               <template v-if="v['attr'][attr]">
                 <template v-if="v['virtual']">
-                  <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(v['codepoint'])" />
+                  <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                   <br />
-                  {{v['codepoint']}}
+                  <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
                 </template>
                 <template v-if="!v['virtual']">
                   *
@@ -163,7 +162,7 @@
       copy: function(text){
         var $temp = $("<input>");
         $("body").append($temp);
-        $temp.val(this.getChar(text)).select();
+        $temp.val(text).select();
         document.execCommand("copy");
         $temp.remove();
       },
