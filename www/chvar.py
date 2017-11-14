@@ -175,6 +175,8 @@ class Chvar():
                 f.write("\t".join([g]+[attr.get(a, "") for a in attrs]).strip())
                 f.write("\n")
 
+dev_mode = False
+
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
     print(json.dumps(cv.query(sys.argv[2]), indent=4))
@@ -188,7 +190,23 @@ else:
         #print(json.dumps(ret, indent=4))
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
+    async def attr(request):
+        data = await request.post()
+        query = data["query"]
+        level = data["level"]
+        group = data["group"]
+        attr = data["attr"]
+        codepoint = data["codepoint"]
+        ds = {"1":cv.attr1, "2":cv.attr2}[level]
+        ds[group][attr] = codepoint
+        cv.commit()
+        ret = cv.query(query)
+        #print(json.dumps(ret, indent=4))
+        return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
+
     app = web.Application()
     app.router.add_get('/', handle)
+    if dev_mode:
+        app.router.add_post('/attr', attr)
 
     web.run_app(app)

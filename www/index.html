@@ -66,7 +66,7 @@
         </tr>
         <tr v-for="attr in attrs">
           <th>{{attr}}</th>
-          <td v-for="v in kgv['glyph']">
+          <td v-for="v in kgv['glyph']" @click="setAttr(2, kgi, attr, v['codepoint'])">
             <span v-if="v['attr'][attr]">
               <template v-if="v['virtual']">
                 <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
@@ -95,7 +95,7 @@
           </tr>
           <tr v-for="attr in attrs">
             <th>{{attr}}</th>
-            <td v-for="v in cgv">
+            <td v-for="v in cgv" @click="setAttr(1, cgi, attr, v['codepoint'])">
               <template v-if="v['attr'][attr]">
                 <template v-if="v['virtual']">
                   <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
@@ -117,6 +117,7 @@
   <br />
   Glyph images are provided by <a href="http://glyphwiki.org">GlyphWiki</a>
 <script>
+  var endpoint = "http://localhost:8080";
   var app = new Vue({
     el: '#app',
     data: {
@@ -151,10 +152,27 @@
       },
       _doQuery: function(){
         $.get(
-          "/api",
+          endpoint,
           {
             "q": this.query,
             "reload": "1"
+          },
+          function(data){
+            app.data = data;
+          },
+          "json"
+        );
+      },
+      setAttr: function(level, group, attr, codepoint){
+        return;
+        $.post(
+          endpoint+"/attr",
+          {
+            "query": this.query,
+            "level": level,
+            "group": group,
+            "attr": attr,
+            "codepoint": codepoint
           },
           function(data){
             app.data = data;
