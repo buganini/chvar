@@ -27,6 +27,9 @@
     .warn {
       background: #fdd;
     }
+    .copy {
+      cursor: copy;
+    }
     table {
       border-collapse: collapse;;
     }
@@ -43,9 +46,9 @@
     </div>
     <div>
       <span class="glyph" v-bind:class="{'warn':!v[1]}" v-for="v in data.query">
-        <img v-bind:src="getGlyph(v[0])" v-bind:title="getChar(v[0])" @click="copy(getChar(v[0]))" />
+        <img class="copy" v-bind:src="getGlyph(v[0])" v-bind:title="getChar(v[0])" @click="copy(getChar(v[0]))" />
         <br />
-        <span @click="copy(v[0])">{{v[0]}}</span>
+        <span class="copy" @click="copy(v[0])">{{v[0]}}</span>
       </span>
     </div>
     <div v-for="kgv,kgi in data.data" class="kg">
@@ -55,9 +58,9 @@
           <th>Glyph</th>
           <td v-for="v in kgv['glyph']">
             <span v-if="!v['virtual']">
-              <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
+              <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
               <br />
-              <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
+              <span class="copy" @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
             </span>
           </td>
         </tr>
@@ -66,9 +69,9 @@
           <td v-for="v in kgv['glyph']">
             <span v-if="v['attr'][attr]">
               <template v-if="v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
+                <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                 <br />
-                <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
+                <span class="copy" @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
               </template>
               <template v-if="!v['virtual']">
                 *
@@ -84,9 +87,9 @@
             <th>Glyph</th>
             <td v-for="v in cgv">
               <template v-if="!v['virtual']">
-                <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
+                <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                 <br />
-                <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
+                <span class="copy" @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
               </template>
             </td>
           </tr>
@@ -95,9 +98,9 @@
             <td v-for="v in cgv">
               <template v-if="v['attr'][attr]">
                 <template v-if="v['virtual']">
-                  <img v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
+                  <img class="copy" v-bind:src="getGlyph(v['codepoint'])" v-bind:title="getChar(v['codepoint'])" @click="copy(getChar(v['codepoint']))" />
                   <br />
-                  <span @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
+                  <span class="copy" @click="copy(v['codepoint'])">{{v['codepoint']}}</span>
                 </template>
                 <template v-if="!v['virtual']">
                   *
