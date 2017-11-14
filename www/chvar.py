@@ -99,7 +99,7 @@ class Chvar():
         for g2 in data:
             g2glyph = []
             for g1 in data[g2]["children"]:
-                glyph = data[g2]["children"][g1]
+                glyph = list(data[g2]["children"][g1])
                 g2glyph.extend(glyph)
                 d = [{"codepoint":x, "virtual":False} for x in glyph]
                 if g1 in self.attr1:
