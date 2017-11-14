@@ -175,15 +175,14 @@ class Chvar():
                 f.write("\t".join([g]+[attr.get(a, "") for a in attrs]).strip())
                 f.write("\n")
 
-dev_mode = False
+dev_mode = True
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
     print(json.dumps(cv.query(sys.argv[2]), indent=4))
 else:
     async def handle(request):
-        if 'reload' in request.GET:
-            print("Reload")
+        if dev_mode:
             cv.checkout()
         q = request.GET.get('q')
         ret = cv.query(q)
