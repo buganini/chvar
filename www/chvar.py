@@ -131,7 +131,7 @@ class Chvar():
             for g in d:
                 g["attr"] = {}
                 for a in attrs:
-                    v = self.attr2[g2].get(a)
+                    v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
             data[g2]["glyph"] = d
         return {"query":tokens, "data":data}
