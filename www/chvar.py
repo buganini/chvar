@@ -246,7 +246,7 @@ else:
         else:
             ds[group][attr] = codepoint
         cv.commit()
-        ret = cv.query(query)
+        ret = cv.query(tokenize(query))
         #print(json.dumps(ret, indent=4))
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
