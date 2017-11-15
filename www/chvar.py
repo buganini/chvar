@@ -241,7 +241,7 @@ else:
         ds = {"1":cv.attr1, "2":cv.attr2}[level]
         if not group in ds:
             ds[group] = {}
-        if ds[group][attr] == codepoint:
+        if ds[group].get(attr) == codepoint:
             ds[group][attr] = ""
         else:
             ds[group][attr] = codepoint
