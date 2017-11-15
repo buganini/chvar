@@ -18,6 +18,8 @@ class Chvar():
         self.attr2 = {}
         self.g1map = {}
         self.g2map = {}
+        self.attr1map = {}
+        self.attr2map = {}
 
         with open(os.path.join(self.datadir, "group1.txt")) as f:
             for l in f:
@@ -56,6 +58,13 @@ class Chvar():
                 for i in range(1, len(l)):
                     d[header[i]] = l[i]
                 self.attr1[l[0]] = d
+                for a in attrs:
+                    v = d.get(a, "")
+                    if not v:
+                        continue
+                    if not v in self.attr1map:
+                        self.attr1map[v] = []
+                    self.attr1map[v].append(l[0])
 
         with open(os.path.join(self.datadir, "attr2.txt")) as f:
             header = next(f).strip().split("\t")
@@ -68,6 +77,13 @@ class Chvar():
                 for i in range(1, len(l)):
                     d[header[i]] = l[i]
                 self.attr2[l[0]] = d
+                for a in attrs:
+                    v = d.get(a, "")
+                    if not v:
+                        continue
+                    if not v in self.attr2map:
+                        self.attr2map[v] = []
+                    self.attr2map[v].append(l[0])
 
     def query(self, query):
         data = {}
@@ -78,6 +94,16 @@ class Chvar():
         while todo:
             cp = todo.pop(0)
             done.append(cp)
+
+            for g1 in self.attr1map.get(cp, []):
+                for c in self.group1[g1]:
+                    if not c in done:
+                        todo.append(c)
+            for g2 in self.attr2map.get(cp, []):
+                for g1 in self.group2[g2]:
+                    for c in self.group1[g1]:
+                        if not c in done:
+                            todo.append(c)
 
             if not cp in self.g1map:
                 continue
@@ -116,6 +142,8 @@ class Chvar():
                     for a in attrs:
                         v = self.attr1.get(g1, {}).get(a)
                         g["attr"][a] = v == g["codepoint"]
+                        if v and not v in done:
+                            todo.append(v)
                 data[g2]["children"][g1] = d
             if data[g2]["virtual"]:
                 continue
@@ -134,6 +162,8 @@ class Chvar():
                 for a in attrs:
                     v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
+                    if v and not v in done:
+                        todo.append(v)
             data[g2]["glyph"] = d
         return {"query":[(cp, tokenmap.get(cp, False)) for cp in query], "data":data}
 
