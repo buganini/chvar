@@ -199,7 +199,10 @@ else:
         ds = {"1":cv.attr1, "2":cv.attr2}[level]
         if not group in ds:
             ds[group] = {}
-        ds[group][attr] = codepoint
+        if ds[group][attr] == codepoint:
+            ds[group][attr] = ""
+        else:
+            ds[group][attr] = codepoint
         cv.commit()
         ret = cv.query(query)
         #print(json.dumps(ret, indent=4))
