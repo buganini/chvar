@@ -118,11 +118,27 @@ class Chvar():
                                 for c in self.group1[g1]:
                                     if c==cp:
                                         tokenmap[cp] = True
+                                if g1 in self.attr1:
+                                    for t in attrs:
+                                        v = self.attr1[g1].get(t)
+                                        if v and not v in done:
+                                            todo.append(v)
+                            if g2 in self.attr2:
+                                for t in attrs:
+                                    v = self.attr2[g2].get(t)
+                                    if v and not v in done:
+                                        todo.append(v)
+
                 else:
                     data["g1/{}".format(g1)] = {"virtual":True, "children":{g1:self.group1[g1]}}
                     for c in self.group1[g1]:
                         if c==cp:
                             tokenmap[cp] = True
+                    if g1 in self.attr1:
+                        for t in attrs:
+                            v = self.attr1[g1].get(t)
+                            if v and not v in done:
+                                todo.append(v)
         for g2 in data:
             g2glyph = []
             for g1 in data[g2]["children"]:
@@ -142,8 +158,6 @@ class Chvar():
                     for a in attrs:
                         v = self.attr1.get(g1, {}).get(a)
                         g["attr"][a] = v == g["codepoint"]
-                        if v and not v in done:
-                            todo.append(v)
                 data[g2]["children"][g1] = d
             if data[g2]["virtual"]:
                 continue
@@ -162,8 +176,6 @@ class Chvar():
                 for a in attrs:
                     v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
-                    if v and not v in done:
-                        todo.append(v)
             data[g2]["glyph"] = d
         return {"query":[(cp, tokenmap.get(cp, False)) for cp in query], "data":data}
 
