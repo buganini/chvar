@@ -69,18 +69,19 @@ class Chvar():
                     d[header[i]] = l[i]
                 self.attr2[l[0]] = d
 
-    def query(self, q):
-        if re.match(r"^[A-Fa-f0-9]+$", q):
-            qs = [q]
-        else:
-            qs = ["{:X}".format(ord(x)) for x in q]
+    def query(self, query):
         data = {}
-        tokens = []
-        for cp in qs:
-            token = [cp, False]
-            tokens.append(token)
+        tokenmap = {}
+        todo = list(query)
+        done = []
+
+        while todo:
+            cp = todo.pop(0)
+            done.append(cp)
+
             if not cp in self.g1map:
                 continue
+
             for g1 in self.g1map[cp]:
                 if g1 in self.g2map:
                     for g2 in self.g2map[g1]:
@@ -90,12 +91,12 @@ class Chvar():
                                 data[g2]["children"][g1] = self.group1[g1]
                                 for c in self.group1[g1]:
                                     if c==cp:
-                                        token[1] = True
+                                        tokenmap[cp] = True
                 else:
                     data["g1/{}".format(g1)] = {"virtual":True, "children":{g1:self.group1[g1]}}
                     for c in self.group1[g1]:
                         if c==cp:
-                            token[1] = True
+                            tokenmap[cp] = True
         for g2 in data:
             g2glyph = []
             for g1 in data[g2]["children"]:
@@ -134,7 +135,8 @@ class Chvar():
                     v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
             data[g2]["glyph"] = d
-        return {"query":tokens, "data":data}
+        return {"query":[(cp, tokenmap.get(cp, False)) for cp in query], "data":data}
+
     def commit(self):
         with open(os.path.join(self.datadir, "group1.txt"), "w") as f:
             groups = list(self.group1.keys())
@@ -175,17 +177,27 @@ class Chvar():
                 f.write("\t".join([g]+[attr.get(a, "") for a in attrs]).strip())
                 f.write("\n")
 
+def tokenize(query):
+    tks = re.findall(r"([A-Fa-f0-9]+|\w)", query)
+    qs = []
+    for q in tks:
+        if re.match(r"^[A-Fa-f0-9]+$", q):
+            qs.append(q)
+        else:
+            qs.append("{:X}".format(ord(q)))
+    return qs
+
 dev_mode = True
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
-    print(json.dumps(cv.query(sys.argv[2]), indent=4))
+    print(json.dumps(cv.query(tokenize(sys.argv[2])), indent=4))
 else:
     async def handle(request):
         if dev_mode:
             cv.checkout()
         q = request.GET.get('q')
-        ret = cv.query(q)
+        ret = cv.query(tokenize(q))
         #print(json.dumps(ret, indent=4))
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
