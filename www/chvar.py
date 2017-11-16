@@ -244,6 +244,7 @@ else:
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
     async def attr(request):
+        cv.checkout()
         data = await request.post()
         query = data["query"]
         level = data["level"]
