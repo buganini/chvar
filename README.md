@@ -1,4 +1,4 @@
-http://chvar.bsdconv.io
+https://bsdconv.io/chvar/
 
 Get transliteration table:
 ```
