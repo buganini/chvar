@@ -229,13 +229,20 @@ def tokenize(query):
             qs.append("{:X}".format(ord(q)))
     return qs
 
-dev_mode = False
+dev_mode = True
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
     print(json.dumps(cv.query(tokenize(sys.argv[2])), indent=4))
 else:
-    async def handle(request):
+    index_html = os.path.join(os.path.dirname(__file__), "index.html")
+
+    async def index_handler(request):
+        r = web.FileResponse(index_html)
+        r.content_type = "text/html"
+        return r
+
+    async def query_handler(request):
         if dev_mode:
             cv.checkout()
         q = request.GET.get('q')
@@ -264,7 +271,8 @@ else:
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
 
     app = web.Application()
-    app.router.add_get('/', handle)
+    app.router.add_get('/', index_handler)
+    app.router.add_get('/query', query_handler)
     if dev_mode:
         app.router.add_post('/attr', attr)
 

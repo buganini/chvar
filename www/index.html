@@ -117,7 +117,6 @@
   <br />
   Glyph images are provided by <a href="http://glyphwiki.org">GlyphWiki</a>
 <script>
-  var endpoint = "http://localhost:8080";
   var app = new Vue({
     el: '#app',
     data: {
@@ -152,7 +151,7 @@
       },
       _doQuery: function(){
         $.get(
-          endpoint,
+          "query",
           {
             "q": this.query
           },
@@ -164,9 +163,8 @@
         );
       },
       setAttr: function(level, group, attr, codepoint){
-        return;
         $.post(
-          endpoint+"/attr",
+          "attr",
           {
             "query": this.query,
             "level": level,
