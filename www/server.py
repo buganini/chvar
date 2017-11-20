@@ -229,7 +229,7 @@ def tokenize(query):
             qs.append("{:X}".format(ord(q)))
     return qs
 
-dev_mode = True
+dev_mode = False
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
