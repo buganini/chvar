@@ -1,19 +1,23 @@
-https://bsdconv.io/chvar/
+https://bsdconv.io/chvar
 
-Get transliteration table:
+Run local server:
 ```
-python chvar . transliterate CP950 | python bsdconv-to.py CP950
+python3 www/server.py .
 ```
-provided: CP950, CP936, GB2312, GBK
 
-Get normalization table:
+Get transliteration table: (CP950, CP936, GB2312, GBK)
 ```
-python chvar . normalize TW | python bsdconv-inter.py
+python3 chvar . transliterate CP950 | python3 bsdconv-to.py CP950
 ```
-provided: TW, CN, JP
 
-Get fuzzy table:
+
+Get normalization table: (TW, CN, JP)
 ```
-python chvar . fuzzy TW | python bsdconv-inter.py
+python3 chvar . normalize TW | python3 bsdconv-inter.py
 ```
-provided: TW, CN
+
+
+Get fuzzy table: (TW, CN)
+```
+python3 chvar . fuzzy TW | python3 bsdconv-inter.py
+```
