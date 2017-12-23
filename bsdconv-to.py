@@ -11,4 +11,8 @@ for l in sys.stdin:
 	if not l:
 		continue
 	l = l.split("\t")
-	print("{0}\t{1}".format(p01(l[0]), c.conv(p01(l[1])).decode("utf-8").upper()))
+	b = c.conv(p01(l[1])).decode("utf-8").upper()
+	if b:
+		sys.stdout.write("{0}\t{1}\n".format(p01(l[0]), b))
+	else:
+		sys.stderr.write("Converion fail: {}\n".format(l))
