@@ -141,11 +141,13 @@ class Chvar():
                             v = self.attr1[g1].get(t)
                             if v and not v in done:
                                 todo.append(v)
+        codepoints = []
         for g2 in data:
             g2glyph = []
             for g1 in data[g2]["children"]:
                 glyph = list(data[g2]["children"][g1])
                 g2glyph.extend(glyph)
+                codepoints.extend(g2glyph)
                 d = [{"codepoint":x, "virtual":False} for x in glyph]
                 if g1 in self.attr1:
                     for a in attrs:
@@ -179,7 +181,8 @@ class Chvar():
                     v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
             data[g2]["glyph"] = d
-        for k in tokenmap.keys():
+        codepoints = list(set(codepoints))
+        for k in codepoints:
             encmap[k] = {}
             for e in encodings:
                 try:
