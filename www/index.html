@@ -37,6 +37,9 @@
       border: 1px solid gray;
       text-align: center;
     }
+    .enc {
+      font-size: 8pt;
+    }
   </style>
 </head>
 <body>
@@ -105,6 +108,7 @@
                 <template v-if="!v['virtual']">
                   *
                 </template>
+                <span class="enc">{{getEnc(v['codepoint'], attr)}}</span>
               </template>
             </td>
           </tr>
@@ -185,6 +189,9 @@
         $temp.val(text).select();
         document.execCommand("copy");
         $temp.remove();
+      },
+      getEnc: function(cp, enc){
+        return this.data["encmap"][cp][enc];
       },
       getAttr1: function(g, col){
         if(!g || !this.data["attr1"][g])

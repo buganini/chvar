@@ -5,6 +5,7 @@ import re
 from aiohttp import web
 
 attrs = ("TW","CN","JP","CP950","CP936","GB2312","GBK")
+encodings = ("CP950", "CP936", "GB2312", "GBK")
 
 class Chvar():
     def __init__(self, datadir):
@@ -90,6 +91,7 @@ class Chvar():
         tokenmap = {}
         todo = list(query)
         done = []
+        encmap = {}
 
         while todo:
             cp = todo.pop(0)
@@ -177,7 +179,15 @@ class Chvar():
                     v = self.attr2.get(g2, {}).get(a)
                     g["attr"][a] = v == g["codepoint"]
             data[g2]["glyph"] = d
-        return {"query":[(cp, tokenmap.get(cp, False)) for cp in query], "data":data}
+        for k in tokenmap.keys():
+            encmap[k] = {}
+            for e in encodings:
+                try:
+                    bs = chr(int(k, 16)).encode(e)
+                    encmap[k][e] = "".join(["{:02X}".format(b) for b in bs])
+                except:
+                    encmap[k][e] = ""
+        return {"query":[(cp, tokenmap.get(cp, False)) for cp in query], "data":data, "encmap":encmap}
 
     def commit(self):
         with open(os.path.join(self.datadir, "group1.txt"), "w") as f:
