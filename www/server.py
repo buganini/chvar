@@ -4,7 +4,7 @@ import json
 import re
 from aiohttp import web
 
-attrs = ("TW","CN","JP","CP950","CP936","GB2312","GBK")
+attrs = ("TW","CN","JP","KO","CP950","CP936","GB2312","GBK")
 encodings = ("CP950", "CP936", "GB2312", "GBK")
 
 class Chvar():
