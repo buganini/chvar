@@ -11,7 +11,7 @@ python3 chvar . transliterate CP950 | python3 bsdconv-to.py CP950
 ```
 
 
-Get normalization table: (TW, CN, JP)
+Get normalization table: (TW, CN, JP, KO)
 ```
 python3 chvar . normalize TW | python3 bsdconv-inter.py
 ```
