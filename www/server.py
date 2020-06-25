@@ -258,7 +258,7 @@ else:
     async def query_handler(request):
         if dev_mode:
             cv.checkout()
-        q = request.GET.get('q')
+        q = request.rel_url.query.get('q')
         ret = cv.query(tokenize(q))
         #print(json.dumps(ret, indent=4))
         return web.json_response(ret, headers={"Access-Control-Allow-Origin":"*"})
