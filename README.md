@@ -5,6 +5,13 @@ Run local server:
 python3 www/server.py .
 ```
 
+Enable dev mode:
+```
+set
+dev_mode = True
+in www.server.py
+```
+
 Get transliteration table: (CP950, CP936, GB2312, GBK)
 ```
 python3 chvar . transliterate CP950 | python3 bsdconv-to.py CP950
