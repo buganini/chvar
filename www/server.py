@@ -255,6 +255,9 @@ else:
         r.content_type = "text/html"
         return r
 
+    async def dev_mode_handler(request):
+        return web.json_response(dev_mode, headers={"Access-Control-Allow-Origin":"*"})
+
     async def query_handler(request):
         if dev_mode:
             cv.checkout()
@@ -285,6 +288,7 @@ else:
 
     app = web.Application()
     app.router.add_get('/', index_handler)
+    app.router.add_get('/dev_mode', dev_mode_handler)
     app.router.add_get('/query', query_handler)
     if dev_mode:
         app.router.add_post('/attr', attr)
