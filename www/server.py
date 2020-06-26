@@ -4,6 +4,8 @@ import json
 import re
 from aiohttp import web
 
+dev_mode = False
+
 attrs = ("TW","CN","JP","KO","CP950","CP936","GB2312","GBK")
 encodings = ("CP950", "CP936", "GB2312", "GBK")
 
@@ -241,8 +243,6 @@ def tokenize(query):
         else:
             qs.append("{:X}".format(ord(q)))
     return qs
-
-dev_mode = False
 
 cv = Chvar(sys.argv[1])
 if 2 < len(sys.argv):
