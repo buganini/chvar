@@ -10,6 +10,10 @@ python3 chvar . transliterate CP936 | python3 bsdconv-to.py CP936 > ${BSDCONV}/m
 python3 chvar . transliterate GB2312 | python3 bsdconv-to.py GB2312 > ${BSDCONV}/modules/to/GB2312-TRANS.txt
 python3 chvar . transliterate GBK | python3 bsdconv-to.py GBK > ${BSDCONV}/modules/to/GBK-TRANS.txt
 
+# Get BMP-transliteration table: (TW, CN)
+python3 chvar . bmp-transliterate TW | python3 bsdconv-inter.py > ${BSDCONV}/modules/inter/BMP-TRANS-TW.txt
+python3 chvar . bmp-transliterate CN | python3 bsdconv-inter.py > ${BSDCONV}/modules/inter/BMP-TRANS-CN.txt
+
 # Get normalization table: (TW, CN, JP, KO)
 python3 chvar . normalize TW | python3 bsdconv-inter.py > ${BSDCONV}/modules/inter/ZHTW.txt
 python3 chvar . normalize CN | python3 bsdconv-inter.py > ${BSDCONV}/modules/inter/ZHCN.txt

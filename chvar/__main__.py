@@ -7,6 +7,7 @@ from chvar import Chvar
 
 def usage():
 	print("python chvar . transliterate {CP950,CP936,GB2312,GBK}\n")
+	print("python chvar . bmp-transliterate {TW,CN}\n")
 	print("python chvar . normalize {TW,CN,JP,KO}\n")
 	print("python chvar . fuzzy {TW,CN,JP}\n")
 	print("python chvar . query {試,9644}\n")
@@ -23,7 +24,15 @@ group2 = Group(os.path.join(sys.argv[1], "group2.txt"))
 
 chvar = Chvar((group1, attr1), (group2, attr2))
 
-argv = {
+actions = [
+	"bmp-transliterate",
+	"transliterate",
+	"normalize",
+	"fuzzy"
+]
+
+args = {
+	"bmp-transliterate":("TW","CN"),
 	"transliterate":("CP950","CP936","GB2312","GBK"),
 	"normalize":("TW","CN","JP","KO"),
 	"fuzzy":("TW","CN","JP")
@@ -32,10 +41,10 @@ argv = {
 if sys.argv[2] == "query":
 	chvar.query(sys.argv[3])
 else:
-	if sys.argv[2] not in ("transliterate", "normalize", "fuzzy"):
+	if sys.argv[2] not in actions:
 		usage()
 
-	if sys.argv[3] not in argv[sys.argv[2]]:
+	if sys.argv[3] not in args[sys.argv[2]]:
 		usage()
 
 	chvar.dump(sys.argv[2], sys.argv[3])

@@ -3,6 +3,11 @@ import sys
 from bsdconv import Bsdconv
 from helper import *
 
+alt_table = {
+	"TW": ["CP950"],
+	"CN": ["GBK", "CP936"]
+}
+
 class Chvar():
 	def __init__(self, *layers):
 		self.layers = layers
@@ -42,8 +47,25 @@ class Chvar():
 				gk = layer[0].rdata.get(gk, None)
 		return ret
 
-	def dump(self , action, cat):
-		func = {"normalize":self.normalize, "fuzzy":self.fuzzy, "transliterate":self.transliterate}.get(action)
+	def bmp_transliterate(self, k, cat):
+		if inBMP(k):
+			return k
+
+		for layer in self.layers:
+			g0 = layer[0].rdata.get(k)
+			alt = layer[1].get(g0).get(cat, None)
+			if alt and inBMP(alt):
+				return alt
+
+			for ss in alt_table[cat]:
+				alt = layer[1].get(g0).get(ss, None)
+				if alt and inBMP(alt):
+					return alt
+
+		return k
+
+	def dump(self ,action, cat):
+		func = {"normalize":self.normalize, "fuzzy":self.fuzzy, "transliterate":self.transliterate, "bmp-transliterate":self.bmp_transliterate}.get(action)
 		keys = sorted(self.layers[0][0].rdata.keys())
 		for k in keys:
 			r = func(k, cat)
