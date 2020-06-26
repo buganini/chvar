@@ -8,6 +8,11 @@ alt_table = {
 	"CN": ["GBK", "CP936"]
 }
 
+compat_table = {
+	"TW": ["TW","CP950","CN","CP936"],
+	"CN": ["CN","CP936","TW","CP950"]
+}
+
 class Chvar():
 	def __init__(self, *layers):
 		self.layers = layers
@@ -58,6 +63,11 @@ class Chvar():
 				return alt
 
 			for ss in alt_table[cat]:
+				alt = layer[1].get(g0).get(ss, None)
+				if alt and inBMP(alt):
+					return alt
+
+			for ss in compat_table[cat]:
 				alt = layer[1].get(g0).get(ss, None)
 				if alt and inBMP(alt):
 					return alt
